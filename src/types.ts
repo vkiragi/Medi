@@ -32,6 +32,16 @@ export type RootStackParamList = {
   MeditationPlayer: { meditation: MeditationSession };
   Attribution: undefined;
   Main: undefined;
+  Stats: undefined;
+  Profile: undefined;
+  Settings: undefined;
+  // Auth screens
+  Login: undefined;
+  SignUp: undefined;
+  ForgotPassword: undefined;
+  // Root navigation
+  App: undefined;
+  Auth: undefined;
 };
 
 export type TabParamList = {

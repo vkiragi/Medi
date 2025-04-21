@@ -5,10 +5,27 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Audio } from 'expo-av';
 import { RootStackParamList } from '../types';
-import Svg, { Circle, G, LinearGradient, Stop, Defs } from 'react-native-svg';
+import Svg, { Circle, G, LinearGradient, Stop, Defs, Rect } from 'react-native-svg';
+import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
+import appTheme from '../theme';
+
+// Get colors directly to avoid theme type issues
+const primaryColor = '#7928CA'; // Vibrant purple
+const secondaryColor = '#FF0080'; // Hot pink
+const darkBg = '#000000'; // Black background
+const darkCard = 'rgba(30, 30, 30, 0.7)'; // Translucent dark gray
+const darkSurface = '#121212'; // Near-black surface
+const lightPurple = 'rgba(121, 40, 202, 0.2)'; // Translucent light purple
+const textPrimary = '#FFFFFF'; // White text
+const textSecondary = '#A1A1A1'; // Light gray text
 
 // Create animated components
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedRect = Animated.createAnimatedComponent(Rect);
+
+// Import these gradient colors directly
+const DARK_GRADIENT_COLORS = ['#0F0F0F', '#171717', '#1F1F1F'] as const;
+const PURPLE_ACCENT_GRADIENT = ['#6633CC', '#7928CA', '#9D50BB'] as const;
 
 // Modern color palette
 const COLORS = {
@@ -426,26 +443,33 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
   
   return (
     <SafeAreaView style={styles.container}>
+      <ExpoLinearGradient
+        colors={DARK_GRADIENT_COLORS}
+        style={styles.background}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+      />
+      
       <View style={styles.header}>
         <IconButton 
           icon="chevron-left" 
           size={30} 
           onPress={handleBack}
-          iconColor={COLORS.dark}
+          iconColor="#FFFFFF"
         />
         <Text style={styles.headerTitle}>{meditation.name}</Text>
         <IconButton 
           icon="dots-vertical" 
           size={24} 
           onPress={() => {}}
-          iconColor={COLORS.dark}
+          iconColor="#FFFFFF"
         />
       </View>
       
       {loadingAudio ? (
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading audio...</Text>
-          <ProgressBar indeterminate color={COLORS.primary} style={styles.loadingBar} />
+          <ProgressBar indeterminate color={primaryColor} style={styles.loadingBar} />
         </View>
       ) : audioLoadError ? (
         <View style={styles.errorContainer}>
@@ -457,14 +481,17 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
           <Button 
             mode="contained" 
             onPress={retryAudioLoading}
-            style={[styles.retryButton, {backgroundColor: COLORS.primary}]}
+            buttonColor={primaryColor}
+            style={styles.retryButton}
+            textColor="#FFFFFF"
           >
             Retry
           </Button>
           <Button 
             mode="outlined" 
             onPress={handleBack}
-            style={styles.backButton}
+            style={[styles.backButton, { borderColor: primaryColor }]}
+            textColor={primaryColor}
           >
             Go Back
           </Button>
@@ -480,8 +507,8 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
                 <Svg width="200" height="200" viewBox="0 0 200 200" style={styles.svg}>
                   <Defs>
                     <LinearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <Stop offset="0%" stopColor={COLORS.primary} />
-                      <Stop offset="100%" stopColor={COLORS.accent2} />
+                      <Stop offset="0%" stopColor="#7928CA" />
+                      <Stop offset="100%" stopColor="#FF0080" />
                     </LinearGradient>
                   </Defs>
                   
@@ -491,7 +518,7 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
                     cy="100"
                     r="90"
                     strokeWidth="8"
-                    stroke={COLORS.lightPurple}
+                    stroke="rgba(121, 40, 202, 0.2)"
                     fill="transparent"
                   />
                   
@@ -527,11 +554,11 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
                 onPress={handleReset}
                 style={styles.controlButton}
                 disabled={!audioLoaded}
-                iconColor={COLORS.dark}
+                iconColor="#FFFFFF"
               />
               <TouchableOpacity 
                 style={[styles.playButton, {
-                  backgroundColor: audioLoaded ? COLORS.primary : '#cccccc'
+                  backgroundColor: audioLoaded ? primaryColor : 'rgba(121, 40, 202, 0.4)'
                 }]} 
                 onPress={togglePlayPause}
                 disabled={!audioLoaded}
@@ -539,7 +566,7 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
                 <IconButton 
                   icon={isPlaying ? "pause" : "play"} 
                   size={34}
-                  iconColor={COLORS.light}
+                  iconColor="#FFFFFF"
                 />
               </TouchableOpacity>
               <IconButton 
@@ -548,7 +575,7 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
                 onPress={handleSkipForward}
                 style={styles.controlButton}
                 disabled={!audioLoaded}
-                iconColor={COLORS.dark}
+                iconColor="#1A1A1A"
               />
             </View>
           </View>
@@ -560,7 +587,7 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
               <IconButton 
                 icon="meditation" 
                 size={24} 
-                iconColor={COLORS.primary}
+                iconColor={primaryColor}
                 style={styles.tipIcon}
               />
               <Text style={styles.tipText}>Focus on your breathing, in and out</Text>
@@ -570,7 +597,7 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
               <IconButton 
                 icon="brain" 
                 size={24} 
-                iconColor={COLORS.accent1}
+                iconColor={secondaryColor}
                 style={styles.tipIcon}
               />
               <Text style={styles.tipText}>When your mind wanders, gently bring it back</Text>
@@ -580,7 +607,7 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
               <IconButton 
                 icon="human" 
                 size={24} 
-                iconColor={COLORS.accent2}
+                iconColor="#5B7DE5"
                 style={styles.tipIcon}
               />
               <Text style={styles.tipText}>Notice sensations in your body</Text>
@@ -590,7 +617,7 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
               <IconButton 
                 icon="clock-time-four" 
                 size={24} 
-                iconColor={COLORS.primary}
+                iconColor="#6A5ACD"
                 style={styles.tipIcon}
               />
               <Text style={styles.tipText}>Be present in the moment</Text>
@@ -605,8 +632,14 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
-    padding: 16,
+    backgroundColor: darkBg,
+  },
+  background: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   scrollContent: {
     paddingBottom: 20,
@@ -616,24 +649,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 20,
+    paddingHorizontal: 16,
     paddingTop: 10,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text.primary,
+    color: textPrimary,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   timerContainerOuter: {
-    backgroundColor: COLORS.light,
+    backgroundColor: darkCard,
     borderRadius: 16,
     padding: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    marginHorizontal: 16,
     marginBottom: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: 'rgba(0, 0, 0, 0.5)',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.5,
+        shadowRadius: 20,
+      },
+      android: {
+        elevation: 10,
+      },
+    }),
   },
   timerContainer: {
     alignItems: 'center',
@@ -659,13 +700,13 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 42,
     fontWeight: 'bold',
-    color: COLORS.text.primary,
+    color: textPrimary,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   sessionText: {
     marginTop: 6,
     fontSize: 14,
-    color: COLORS.text.secondary,
+    color: textSecondary,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   controlsContainer: {
@@ -675,7 +716,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingTop: 15,
     borderTopWidth: 1,
-    borderTopColor: COLORS.lightPurple,
+    borderTopColor: lightPurple,
   },
   controlButton: {
     marginHorizontal: 20,
@@ -686,34 +727,47 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: 'rgba(121, 40, 202, 0.5)',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.5,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 10,
+      },
+    }),
   },
   infoContainer: {
-    backgroundColor: COLORS.light,
+    backgroundColor: darkCard,
     borderRadius: 16,
     padding: 20,
+    marginHorizontal: 16,
     marginTop: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    ...Platform.select({
+      ios: {
+        shadowColor: 'rgba(0, 0, 0, 0.5)',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.5,
+        shadowRadius: 20,
+      },
+      android: {
+        elevation: 10,
+      },
+    }),
   },
   infoTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 16,
-    color: COLORS.text.primary,
+    color: textPrimary,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   tipCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(242, 247, 255, 0.6)',
+    backgroundColor: 'rgba(40, 40, 40, 0.8)',
     borderRadius: 12,
     marginBottom: 10,
     padding: 8,
@@ -724,7 +778,7 @@ const styles = StyleSheet.create({
   tipText: {
     flex: 1,
     fontSize: 15,
-    color: COLORS.text.primary,
+    color: textPrimary,
     paddingRight: 8,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
@@ -737,7 +791,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 18,
     marginBottom: 20,
-    color: COLORS.text.secondary,
+    color: textSecondary,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   loadingBar: {
@@ -755,7 +809,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 16,
-    color: '#E53935',
+    color: '#FF4365',
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   errorMessage: {
@@ -763,7 +817,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 30,
     lineHeight: 24,
-    color: COLORS.text.secondary,
+    color: textSecondary,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   retryButton: {
