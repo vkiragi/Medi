@@ -6,7 +6,7 @@ export interface MeditationSession {
   backgroundImage?: string;
   soundPath?: any;
   soundName?: string;
-  category: 'guided' | 'unguided' | 'breathing' | 'body' | 'sleep' | 'compassion' | 'relaxation';
+  category: 'guided' | 'unguided' | 'breathing' | 'breath' | 'body' | 'sleep' | 'compassion' | 'relaxation' | 'meditate' | 'affirmate';
   audioUrl?: string;
   attribution?: string;
   imageUrl?: any;
