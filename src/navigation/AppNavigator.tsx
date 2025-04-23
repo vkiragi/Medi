@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { NavigationContainer, DefaultTheme as NavigationDefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
-import { RootStackParamList, TabParamList } from '../types';
+import { RootStackParamList, TabParamList, AppStackParamList, HomeStackParamList, UserProfile, AuthStackParamList } from '../types';
 import HomeScreen from '../screens/HomeScreen';
 import MeditationDetailScreen from '../screens/MeditationDetailScreen';
 import MeditationPlayerScreen from '../screens/MeditationPlayerScreen';
@@ -15,7 +15,9 @@ import AttributionScreen from '../screens/AttributionScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import ProfileSetupScreen from '../screens/ProfileSetupScreen';
 import { useAuth } from '../contexts/AuthContext';
+import { getCurrentProfile } from '../services/api';
 import theme from '../theme';
 import { IconButton } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -49,37 +51,24 @@ const DarkGradientHeader = () => (
   />
 );
 
-const Stack = createStackNavigator<RootStackParamList>();
+const RootStack = createStackNavigator<RootStackParamList>();
+const AppStackNav = createStackNavigator<AppStackParamList>();
+const AuthStackNav = createStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
+const HomeStackNav = createStackNavigator<HomeStackParamList>();
 
 const HomeStack = () => {
   return (
-    <Stack.Navigator
+    <HomeStackNav.Navigator
       screenOptions={{
-        headerBackground: () => <DarkGradientHeader />,
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-        headerShadowVisible: false,
+        headerShown: false,
       }}
     >
-      <Stack.Screen 
+      <HomeStackNav.Screen 
         name="Home" 
         component={HomeScreen} 
-        options={{ title: 'Meditation App', headerShown: false }} 
       />
-      <Stack.Screen 
-        name="MeditationDetail" 
-        component={MeditationDetailScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen 
-        name="MeditationPlayer" 
-        component={MeditationPlayerScreen}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
+    </HomeStackNav.Navigator>
   );
 };
 
@@ -91,16 +80,29 @@ const TabNavigator = () => {
           let iconName: string = 'home';
 
           if (route.name === 'HomeTab') {
-            iconName = 'home';
+            iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'ProfileTab') {
-            iconName = 'account';
+            iconName = focused ? 'account-circle' : 'account-circle-outline';
           } else if (route.name === 'StatsTab') {
-            iconName = 'chart-bar';
+            iconName = focused ? 'chart-timeline-variant' : 'chart-timeline-variant-shimmer';
           } else if (route.name === 'SettingsTab') {
-            iconName = 'cog';
+            iconName = focused ? 'cog' : 'cog-outline';
           }
 
-          return <IconButton icon={iconName} size={size} iconColor={color} />;
+          // Return the icon with more space around it
+          return (
+            <View style={{ 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              paddingTop: 6
+            }}>
+              <IconButton 
+                icon={iconName} 
+                size={24} 
+                iconColor={color} 
+              />
+            </View>
+          );
         },
         tabBarActiveTintColor: theme.palette.primary,
         tabBarInactiveTintColor: theme.palette.textSecondary,
@@ -110,8 +112,23 @@ const TabNavigator = () => {
           borderTopWidth: 0,
           backgroundColor: 'rgba(18, 18, 18, 0.95)',
           borderTopColor: 'rgba(40, 40, 40, 0.8)',
+          height: 85, // Increased height further
+          paddingBottom: 20, // Significantly more bottom padding
+          paddingTop: 5, // Added top padding
+        },
+        tabBarLabelStyle: {
+          fontSize: 12, // Slightly larger font
+          fontWeight: '600',
+          marginTop: 2, // Adjust to position below the icon
+          marginBottom: 6, // Added bottom margin
         },
         headerShown: false,
+        tabBarShowLabel: true, // Ensure labels are shown
+        tabBarItemStyle: {
+          paddingVertical: 5, // Add vertical padding inside each tab item
+        },
+        // Remove any title from the header that might say "MARC"
+        title: '', 
       })}
     >
       <Tab.Screen 
@@ -126,13 +143,6 @@ const TabNavigator = () => {
         component={ProfileScreen}
         options={{ 
           title: 'Profile',
-          headerShown: true,
-          headerBackground: () => <DarkGradientHeader />,
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-          headerShadowVisible: false,
         }}
       />
       <Tab.Screen 
@@ -140,13 +150,6 @@ const TabNavigator = () => {
         component={StatsScreen}
         options={{ 
           title: 'Stats',
-          headerShown: true,
-          headerBackground: () => <DarkGradientHeader />,
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-          headerShadowVisible: false,
         }}
       />
       <Tab.Screen 
@@ -154,23 +157,15 @@ const TabNavigator = () => {
         component={SettingsScreen}
         options={{ 
           title: 'Settings',
-          headerShown: true,
-          headerBackground: () => <DarkGradientHeader />,
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-          headerShadowVisible: false,
         }}
       />
     </Tab.Navigator>
   );
 };
 
-// Main app stack after authentication
 const AppStack = () => {
   return (
-    <Stack.Navigator
+    <AppStackNav.Navigator
       screenOptions={{
         headerBackground: () => <DarkGradientHeader />,
         headerTintColor: '#FFFFFF',
@@ -178,62 +173,99 @@ const AppStack = () => {
           fontWeight: 'bold',
         },
         headerShadowVisible: false,
+        title: '', // Set an empty title by default
+        headerTitle: '', // Ensure no header title is shown
       }}
     >
-      <Stack.Screen 
+      <AppStackNav.Screen 
         name="Main" 
         component={TabNavigator} 
-        options={{ headerShown: false }} 
+        options={{ 
+          headerShown: false,
+          title: '',
+        }} 
       />
-      <Stack.Screen 
+      <AppStackNav.Screen 
+        name="MeditationDetail" 
+        component={MeditationDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <AppStackNav.Screen 
+        name="MeditationPlayer" 
+        component={MeditationPlayerScreen}
+        options={{ headerShown: false }}
+      />
+      <AppStackNav.Screen 
         name="Attribution" 
         component={AttributionScreen}
         options={{ title: 'Credits & Attribution' }}
       />
-    </Stack.Navigator>
+    </AppStackNav.Navigator>
   );
 };
 
-// Authentication stack before login
 const AuthStack = () => {
   return (
-    <Stack.Navigator
+    <AuthStackNav.Navigator
       screenOptions={{
         headerShown: false,
         cardStyle: { backgroundColor: theme.palette.background }
       }}
     >
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-    </Stack.Navigator>
+      <AuthStackNav.Screen name="Login" component={LoginScreen} />
+      <AuthStackNav.Screen name="SignUp" component={SignUpScreen} />
+      <AuthStackNav.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+    </AuthStackNav.Navigator>
   );
 };
 
-// Main navigator that handles auth state
+const LoadingScreen = () => (
+  <View style={styles.loadingContainer}>
+    <LinearGradient
+      colors={DARK_GRADIENT_COLORS}
+      style={StyleSheet.absoluteFill}
+    />
+    <ActivityIndicator size="large" color={theme.palette.primary} />
+  </View>
+);
+
 const RootNavigator = () => {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <LinearGradient
-          colors={DARK_GRADIENT_COLORS}
-          style={StyleSheet.absoluteFill}
-        />
-        <ActivityIndicator size="large" color={theme.palette.primary} />
-      </View>
-    );
+  const { user, loading: authLoading, profile, loadingProfile } = useAuth();
+
+  console.log('[RootNavigator] Render - User:', !!user, 'AuthLoading:', authLoading, 'ProfileLoading:', loadingProfile);
+  console.log('[RootNavigator] Render - Profile:', profile);
+
+  if (authLoading || (user && loadingProfile)) { 
+    console.log('[RootNavigator] Rendering LoadingScreen');
+    return <LoadingScreen />;
   }
-  
+
+  const needsProfileSetup = user && !profile?.full_name; 
+  console.log('[RootNavigator] Needs Profile Setup:', needsProfileSetup);
+
+  // Determine which screen to render
+  let screenToRender;
+  if (user) {
+    if (needsProfileSetup) {
+      console.log('[RootNavigator] Determining to render ProfileSetupScreen');
+      screenToRender = <RootStack.Screen name="ProfileSetup" component={ProfileSetupScreen} />;
+    } else {
+      console.log('[RootNavigator] Determining to render AppStack');
+      screenToRender = <RootStack.Screen name="App" component={AppStack} />;
+    }
+  } else {
+    console.log('[RootNavigator] Determining to render AuthStack');
+    screenToRender = <RootStack.Screen name="Auth" component={AuthStack} />;
+  }
+
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {user ? (
-        <Stack.Screen name="App" component={AppStack} />
-      ) : (
-        <Stack.Screen name="Auth" component={AuthStack} />
-      )}
-    </Stack.Navigator>
+    <RootStack.Navigator screenOptions={{ 
+      headerShown: false,
+      title: '',
+      headerTitle: '',
+    }}>
+      {screenToRender} 
+    </RootStack.Navigator>
   );
 };
 

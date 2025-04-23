@@ -4,7 +4,7 @@ import { Text, IconButton, useTheme, ProgressBar, Button } from 'react-native-pa
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Audio } from 'expo-av';
-import { RootStackParamList } from '../types';
+import { AppStackParamList, RootStackParamList } from '../types';
 import Svg, { Circle, G, LinearGradient, Stop, Defs, Rect } from 'react-native-svg';
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import appTheme from '../theme';
@@ -43,8 +43,9 @@ const COLORS = {
   }
 };
 
-type MeditationPlayerScreenRouteProp = RouteProp<RootStackParamList, 'MeditationPlayer'>;
-type MeditationPlayerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MeditationPlayer'>;
+// Correctly type the route and navigation props using AppStackParamList
+type MeditationPlayerScreenRouteProp = RouteProp<AppStackParamList, 'MeditationPlayer'>;
+type MeditationPlayerScreenNavigationProp = StackNavigationProp<AppStackParamList, 'MeditationPlayer'>;
 
 interface MeditationPlayerScreenProps {
   route: MeditationPlayerScreenRouteProp;
@@ -61,6 +62,7 @@ const CIRCLE_LENGTH = 1000; // Circumference of circle
 const CIRCLE_RADIUS = CIRCLE_LENGTH / (2 * Math.PI);
 
 const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenProps) => {
+  // Correctly access meditation object from route params
   const { meditation } = route.params;
   const theme = useTheme();
   

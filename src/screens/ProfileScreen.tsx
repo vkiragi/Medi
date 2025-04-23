@@ -6,11 +6,13 @@ import {
   Animated, 
   Dimensions, 
   SafeAreaView,
-  StatusBar
+  StatusBar,
+  ActivityIndicator
 } from 'react-native';
 import { Text, Avatar, Card, List, Button, Surface, IconButton } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -39,33 +41,38 @@ const ProfileScreen = () => {
     new Animated.Value(0)
   ]);
   
+  const { profile, loadingProfile } = useAuth();
+  
   useEffect(() => {
-    // Animate header elements
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      })
-    ]).start();
+    if (!loadingProfile && profile) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 800,
+          useNativeDriver: true,
+        })
+      ]).start();
 
-    // Staggered animations for cards
-    const animations = cardAnimValues.map((anim, index) => {
-      return Animated.timing(anim, {
-        toValue: 1,
-        duration: 500,
-        delay: index * 100,
-        useNativeDriver: true,
+      const animations = cardAnimValues.map((anim) => {
+        return Animated.timing(anim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        });
       });
-    });
-    
-    Animated.stagger(100, animations).start();
-  }, []);
+      
+      Animated.stagger(100, animations).start();
+    } else {
+       fadeAnim.setValue(0);
+       slideAnim.setValue(30);
+       cardAnimValues.forEach(anim => anim.setValue(0));
+    }
+  }, [loadingProfile, profile]);
 
   const renderAnimatedCard = (index: number, children: React.ReactNode) => {
     const animValue = cardAnimValues[index];
@@ -89,6 +96,36 @@ const ProfileScreen = () => {
       </Animated.View>
     );
   };
+
+  if (loadingProfile) {
+    return (
+      <SafeAreaView style={[styles.container, styles.centered]}>
+        <StatusBar barStyle="light-content" />
+        <LinearGradient
+          colors={DARK_GRADIENT_COLORS}
+          style={styles.background}
+        />
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </SafeAreaView>
+    );
+  }
+
+  if (!profile) {
+     return (
+       <SafeAreaView style={[styles.container, styles.centered]}>
+         <StatusBar barStyle="light-content" />
+         <LinearGradient
+           colors={DARK_GRADIENT_COLORS}
+           style={styles.background}
+         />
+         <Text style={styles.name}>Could not load profile.</Text>
+       </SafeAreaView>
+     );
+   }
+
+  const totalMinutes = profile?.total_minutes_meditated ?? 0;
+  const streak = profile?.streak_days ?? 0;
+  const sessionsCount = 42; // Placeholder
 
   return (
     <SafeAreaView style={styles.container}>
@@ -117,11 +154,11 @@ const ProfileScreen = () => {
         >
           <Avatar.Image
             size={90}
-            source={{ uri: 'https://randomuser.me/api/portraits/women/44.jpg' }}
+            source={{ uri: profile.avatar_url || 'https://via.placeholder.com/90' }}
             style={styles.avatar}
           />
-          <Text style={styles.name}>Sarah Johnson</Text>
-          <Text style={styles.subtitle}>Meditation Enthusiast</Text>
+          <Text style={styles.name}>{profile.full_name || 'Meditator'}</Text>
+          <Text style={styles.subtitle}>{profile.username || 'Meditation Enthusiast'}</Text>
         </Animated.View>
         
         <Animated.View
@@ -136,17 +173,17 @@ const ProfileScreen = () => {
           <Surface style={styles.statsCard}>
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>42</Text>
+                <Text style={styles.statNumber}>{sessionsCount}</Text>
                 <Text style={styles.statLabel}>Sessions</Text>
               </View>
               <View style={styles.statSeparator} />
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>8</Text>
+                <Text style={styles.statNumber}>{streak}</Text>
                 <Text style={styles.statLabel}>Streak</Text>
               </View>
               <View style={styles.statSeparator} />
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>320</Text>
+                <Text style={styles.statNumber}>{totalMinutes}</Text>
                 <Text style={styles.statLabel}>Minutes</Text>
               </View>
             </View>
@@ -465,6 +502,10 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 30,
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

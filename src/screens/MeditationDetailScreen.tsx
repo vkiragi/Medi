@@ -11,12 +11,12 @@ import {
 import { Text, Button, Card, Paragraph, Avatar } from 'react-native-paper';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../types';
+import { RootStackParamList, AppStackParamList } from '../types';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-type MeditationDetailScreenRouteProp = RouteProp<RootStackParamList, 'MeditationDetail'>;
-type MeditationDetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MeditationDetail'>;
+type MeditationDetailScreenRouteProp = RouteProp<AppStackParamList, 'MeditationDetail'>;
+type MeditationDetailScreenNavigationProp = StackNavigationProp<AppStackParamList, 'MeditationDetail'>;
 
 interface MeditationDetailScreenProps {
   route: MeditationDetailScreenRouteProp;

@@ -13,13 +13,14 @@ import {
 import { Text, Surface, useTheme, Avatar, IconButton } from 'react-native-paper';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList, MeditationSession } from '../types';
+import { AppStackParamList, MeditationSession } from '../types';
 import { meditationSessions } from '../data/meditations';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import appTheme from '../theme';
+import { useAuth } from '../contexts/AuthContext';
 
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+type HomeScreenNavigationProp = StackNavigationProp<AppStackParamList>;
 
 // Color palette for dark theme
 const COLORS = {
@@ -72,6 +73,24 @@ const HomeScreen = () => {
   const [animatedValues] = useState(() => 
     categories.map(() => new Animated.Value(0))
   );
+  const { user, profile } = useAuth();
+  const [username, setUsername] = useState<string>('Friend');
+
+  // Set username from profile full_name when available, fallback to email
+  useEffect(() => {
+    if (profile?.full_name) {
+      // Extract first name only
+      const firstName = profile.full_name.split(' ')[0];
+      setUsername(firstName);
+    } else if (user && user.email) {
+      // Fallback to email username
+      const emailName = user.email.split('@')[0];
+      const capitalized = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+      setUsername(capitalized);
+    } else {
+      setUsername('Friend');
+    }
+  }, [user, profile]);
 
   // Start animations when component mounts
   useEffect(() => {
@@ -131,11 +150,7 @@ const HomeScreen = () => {
   };
 
   const navigateToAttribution = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'Attribution'
-      })
-    );
+    navigation.navigate('Attribution');
   };
 
   return (
@@ -157,7 +172,7 @@ const HomeScreen = () => {
         <View style={styles.header}>
           <View>
             <View style={styles.greetingRow}>
-              <Text style={styles.greeting}>{greeting}, Sarah! </Text>
+              <Text style={styles.greeting}>{greeting}, {username}! </Text>
               <Text style={styles.emoji}>👋</Text>
             </View>
             <Text style={styles.subtitle}>Start your mindfulness journey</Text>
@@ -185,7 +200,7 @@ const HomeScreen = () => {
         </View>
 
         <View style={styles.recentSessionsContainer}>
-          {meditationSessions.slice(0, 2).map((session, index) => (
+          {meditationSessions.slice(0, 2).map((session) => (
             <TouchableOpacity 
               key={session.id}
               style={styles.recentSessionCard}
@@ -209,7 +224,10 @@ const HomeScreen = () => {
                 size={20}
                 iconColor="white"
                 style={styles.sessionPlayButton}
-                onPress={() => navigation.navigate('MeditationPlayer', { meditation: session })}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  navigation.navigate('MeditationPlayer', { meditation: session });
+                }}
               />
             </TouchableOpacity>
           ))}

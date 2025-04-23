@@ -32,11 +32,18 @@ export const createUserProfile = async (user: User) => {
 
 // Get the current user's profile
 export const getCurrentProfile = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  console.log('[getCurrentProfile] Attempting to get user session...');
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
   
+  if (authError) {
+    console.error('[getCurrentProfile] Error getting user session:', authError);
+    throw new Error('Failed to get user session');
+  }
   if (!user) {
+    console.log('[getCurrentProfile] No authenticated user found.');
     throw new Error('Not authenticated');
   }
+  console.log('[getCurrentProfile] User found, attempting to fetch profile for id:', user.id);
 
   const { data, error } = await supabase
     .from('profiles')
@@ -44,10 +51,18 @@ export const getCurrentProfile = async () => {
     .eq('id', user.id)
     .single();
 
+  // Log the result or error from the profile fetch
   if (error) {
-    throw error;
+    console.error('[getCurrentProfile] Error fetching profile data:', error);
+    // Don't throw PGRST116 error, just return null as profile doesn't exist yet
+    if (error.code === 'PGRST116') { 
+      console.log('[getCurrentProfile] Profile not found (PGRST116), returning null.');
+      return null; 
+    }
+    throw error; // Throw other errors
   }
 
+  console.log('[getCurrentProfile] Profile data fetched successfully:', data);
   return data;
 };
 
@@ -63,13 +78,22 @@ export const updateProfile = async (updates: Partial<Database['public']['Tables'
     .from('profiles')
     .update(updates)
     .eq('id', user.id)
-    .select();
+    .select('*');
+
+  // Log the raw response from Supabase
+  console.log('[updateProfile] Supabase returned data:', JSON.stringify(data));
+  console.log('[updateProfile] Supabase returned error:', JSON.stringify(error));
 
   if (error) {
+    // Log the error before throwing
+    console.error('[updateProfile] Throwing error:', error);
     throw error;
   }
 
-  return data[0];
+  // Log the value we are about to return
+  console.log('[updateProfile] Returning data[0]:', JSON.stringify(data?.[0]));
+
+  return data?.[0]; // Use optional chaining just in case data is null
 };
 
 // ==================== Meditation Operations ==================== //
@@ -306,4 +330,61 @@ export const isFavorite = async (meditationId: string) => {
   }
 
   return Boolean(data);
-}; 
+};
+
+// Renamed and corrected function to upsert profile details
+export async function upsertUserProfile(profileData: Partial<Omit<Database['public']['Tables']['profiles']['Row'], 'id' | 'created_at' | 'updated_at'>>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
+  const upsertData = {
+    ...profileData,
+    id: user.id, // Ensure ID is always set for upsert
+    email: user.email || '', // Include the user's email from auth
+    updated_at: new Date().toISOString(), // Manually set updated_at
+  };
+
+  // Remove potentially undefined fields if they are null in the input
+  if (upsertData.username === null) delete upsertData.username;
+  if (upsertData.full_name === null) delete upsertData.full_name;
+  
+  console.log('[upsertUserProfile] Upserting data:', upsertData);
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .upsert(upsertData, { 
+      onConflict: 'id'
+    })
+    .select('*') // Select the updated/inserted row
+    .single(); // Expect a single row back
+    
+  // Log the raw response
+  console.log('[upsertUserProfile] Supabase returned data:', JSON.stringify(data));
+  console.log('[upsertUserProfile] Supabase returned error:', JSON.stringify(error));
+
+  if (error) {
+    console.error('[upsertUserProfile] Error upserting profile:', error);
+    throw error;
+  }
+  
+  console.log('[upsertUserProfile] Returning upserted profile:', data);
+  return data; // Return the single profile object
+}
+
+// Function to fetch the profile (kept for completeness, can be merged/refactored)
+export async function getUserProfile() {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("User not authenticated");
+  
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+    
+  if (error && error.code !== 'PGRST116') throw error;
+  
+  return data;
+} 
