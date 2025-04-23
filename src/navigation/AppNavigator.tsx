@@ -8,6 +8,7 @@ import { RootStackParamList, TabParamList, AppStackParamList, HomeStackParamList
 import HomeScreen from '../screens/HomeScreen';
 import MeditationDetailScreen from '../screens/MeditationDetailScreen';
 import MeditationPlayerScreen from '../screens/MeditationPlayerScreen';
+import CategoryMeditationsScreen from '../screens/CategoryMeditationsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import StatsScreen from '../screens/StatsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -193,6 +194,11 @@ const AppStack = () => {
       <AppStackNav.Screen 
         name="MeditationPlayer" 
         component={MeditationPlayerScreen}
+        options={{ headerShown: false }}
+      />
+      <AppStackNav.Screen 
+        name="CategoryMeditations" 
+        component={CategoryMeditationsScreen}
         options={{ headerShown: false }}
       />
       <AppStackNav.Screen 

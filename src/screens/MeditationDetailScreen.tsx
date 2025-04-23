@@ -8,7 +8,7 @@ import {
   Dimensions,
   StatusBar
 } from 'react-native';
-import { Text, Button, Card, Paragraph, Avatar } from 'react-native-paper';
+import { Text, Button, Card, Paragraph, Avatar, IconButton } from 'react-native-paper';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList, AppStackParamList } from '../types';
@@ -85,7 +85,7 @@ const MeditationDetailScreen = ({ route, navigation }: MeditationDetailScreenPro
 
   const headerOpacity = 1;
   
-  const headerHeight = 180;
+  const headerHeight = 140;
 
   const renderHeader = () => {
     return (
@@ -94,6 +94,15 @@ const MeditationDetailScreen = ({ route, navigation }: MeditationDetailScreenPro
           colors={[COLORS.primary, COLORS.primary]}
           style={styles.headerGradient}
         >
+          <View style={styles.headerTopRow}>
+            <IconButton
+              icon="arrow-left"
+              size={24}
+              iconColor={COLORS.textPrimary}
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}
+            />
+          </View>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle} numberOfLines={2} ellipsizeMode="tail">
               {meditation.name}
@@ -244,10 +253,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 30,
+    paddingTop: 15,
   },
   contentOffset: {
-    height: 180,
+    height: 140,
   },
   contentContainer: {
     padding: 16,
@@ -259,7 +268,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 180,
+    height: 140,
     zIndex: 10,
     backgroundColor: COLORS.primary,
   },
@@ -268,9 +277,19 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingBottom: 16,
   },
+  headerTopRow: {
+    position: 'absolute', 
+    top: 10,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    padding: 8,
+    zIndex: 10,
+  },
   headerContent: {
     paddingHorizontal: 24,
-    paddingTop: 100,
+    paddingTop: 45,
     paddingBottom: 16,
   },
   headerTitle: {
@@ -398,6 +417,9 @@ const styles = StyleSheet.create({
   },
   footerSpace: {
     height: 100,
+  },
+  backButton: {
+    padding: 8,
   },
 });
 

@@ -8,6 +8,7 @@ import { AppStackParamList, RootStackParamList } from '../types';
 import Svg, { Circle, G, LinearGradient, Stop, Defs, Rect } from 'react-native-svg';
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import appTheme from '../theme';
+import { recordMeditationSession, incrementPlayCount } from '../services/api';
 
 // Get colors directly to avoid theme type issues
 const primaryColor = '#7928CA'; // Vibrant purple
@@ -81,6 +82,7 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [audioLoadError, setAudioLoadError] = useState(false);
   const [loadingAudio, setLoadingAudio] = useState(true);
+  const [sessionCompleted, setSessionCompleted] = useState(false);
   const totalTime = meditation.duration * 60;
   
   // Map the circleProgressAnimation to the dashoffset for continuous animation
@@ -370,7 +372,32 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
         animationRef.current.stop();
       }
       
-      Alert.alert('Session Complete', 'Your meditation session has completed.');
+      if (!sessionCompleted) {
+        setSessionCompleted(true);
+        
+        // Record the meditation session
+        try {
+          await recordMeditationSession(
+            meditation.id,
+            totalTime,
+            true, // completed
+            '' // no notes for now
+          );
+          
+          // Increment the play count for this meditation
+          await incrementPlayCount(meditation.id);
+          
+          console.log('[MeditationPlayer] Session recorded successfully');
+        } catch (error) {
+          console.error('[MeditationPlayer] Error recording session:', error);
+        }
+        
+        Alert.alert(
+          'Session Complete', 
+          'Your meditation session has completed. Great job!',
+          [{ text: 'OK', onPress: () => navigation.goBack() }]
+        );
+      }
     } catch (error) {
       console.error('Error completing session:', error);
     }

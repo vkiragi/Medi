@@ -23,6 +23,7 @@ export type AppStackParamList = {
   Main: NavigatorScreenParams<TabParamList>; // The Bottom Tab Navigator
   MeditationDetail: { meditation: MeditationSession }; // Pass the whole object for now
   MeditationPlayer: { meditation: MeditationSession }; // Pass the whole object for now
+  CategoryMeditations: { categoryName: string; categoryColor: string }; // New screen for listing meditations by category
   Attribution: undefined;
 };
 

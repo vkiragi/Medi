@@ -199,11 +199,34 @@ export const recordMeditationSession = async (meditationId: string, durationSeco
     throw error;
   }
 
+  // Get the user's current profile data
+  const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('total_minutes_meditated')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError) {
+    console.error('Error fetching profile for update:', profileError);
+    throw profileError;
+  }
+
   // Update user total meditation time
   if (completed) {
+    const currentTotalMinutes = profileData.total_minutes_meditated || 0;
+    const newTotalMinutes = currentTotalMinutes + (durationSeconds / 60);
+    
     await updateProfile({
-      total_minutes_meditated: durationSeconds / 60,
+      total_minutes_meditated: newTotalMinutes,
     });
+    
+    // Also update the streak
+    try {
+      await updateMeditationStreak();
+    } catch (streakError) {
+      console.error('Error updating streak:', streakError);
+      // Don't fail the whole operation if streak update fails
+    }
   }
 
   return data[0];
@@ -387,4 +410,113 @@ export async function getUserProfile() {
   if (error && error.code !== 'PGRST116') throw error;
   
   return data;
-} 
+}
+
+// Get user's meditation session count
+export const getMeditationSessionCount = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('Not authenticated');
+  }
+
+  const { count, error } = await supabase
+    .from('meditation_history')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('completed', true);
+
+  if (error) {
+    throw error;
+  }
+
+  return count || 0;
+};
+
+// Update user's meditation streak
+export const updateMeditationStreak = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('Not authenticated');
+  }
+
+  // First, check if the user has meditated today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const { data: todayMeditations, error: todayError } = await supabase
+    .from('meditation_history')
+    .select('completed_at')
+    .eq('user_id', user.id)
+    .eq('completed', true)
+    .gte('completed_at', today.toISOString())
+    .limit(1);
+
+  if (todayError) {
+    throw todayError;
+  }
+
+  // If no meditation today, don't update the streak
+  if (!todayMeditations || todayMeditations.length === 0) {
+    return;
+  }
+
+  // Get the user's profile to check the current streak
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('streak_days, longest_streak')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError) {
+    throw profileError;
+  }
+
+  // Check if there was a meditation yesterday
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  const { data: yesterdayMeditations, error: yesterdayError } = await supabase
+    .from('meditation_history')
+    .select('completed_at')
+    .eq('user_id', user.id)
+    .eq('completed', true)
+    .gte('completed_at', yesterday.toISOString())
+    .lt('completed_at', today.toISOString())
+    .limit(1);
+
+  if (yesterdayError) {
+    throw yesterdayError;
+  }
+
+  // Update the streak
+  let newStreak = profile.streak_days;
+  
+  if (yesterdayMeditations && yesterdayMeditations.length > 0) {
+    // If meditated yesterday, increment streak
+    newStreak += 1;
+  } else {
+    // If didn't meditate yesterday, reset streak to 1 (today's meditation)
+    newStreak = 1;
+  }
+
+  // Check if the new streak is longer than the longest streak
+  const longestStreak = Math.max(profile.longest_streak || 0, newStreak);
+
+  // Update the profile
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      streak_days: newStreak,
+      longest_streak: longestStreak,
+    })
+    .eq('id', user.id)
+    .select();
+
+  if (error) {
+    throw error;
+  }
+
+  return data[0];
+}; 

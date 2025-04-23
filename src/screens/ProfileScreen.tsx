@@ -13,6 +13,7 @@ import { Text, Avatar, Card, List, Button, Surface, IconButton } from 'react-nat
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { getMeditationSessionCount } from '../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -40,6 +41,8 @@ const ProfileScreen = () => {
     new Animated.Value(0),
     new Animated.Value(0)
   ]);
+  const [sessionCount, setSessionCount] = useState<number>(0);
+  const [loadingStats, setLoadingStats] = useState<boolean>(true);
   
   const { profile, loadingProfile } = useAuth();
   
@@ -67,12 +70,28 @@ const ProfileScreen = () => {
       });
       
       Animated.stagger(100, animations).start();
+      
+      // Fetch the session count
+      fetchSessionCount();
     } else {
        fadeAnim.setValue(0);
        slideAnim.setValue(30);
        cardAnimValues.forEach(anim => anim.setValue(0));
     }
   }, [loadingProfile, profile]);
+  
+  const fetchSessionCount = async () => {
+    setLoadingStats(true);
+    try {
+      const count = await getMeditationSessionCount();
+      setSessionCount(count);
+      console.log('[ProfileScreen] Fetched session count:', count);
+    } catch (error) {
+      console.error('[ProfileScreen] Error fetching session count:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   const renderAnimatedCard = (index: number, children: React.ReactNode) => {
     const animValue = cardAnimValues[index];
@@ -123,9 +142,8 @@ const ProfileScreen = () => {
      );
    }
 
-  const totalMinutes = profile?.total_minutes_meditated ?? 0;
+  const totalMinutes = Math.round(profile?.total_minutes_meditated ?? 0);
   const streak = profile?.streak_days ?? 0;
-  const sessionsCount = 42; // Placeholder
 
   return (
     <SafeAreaView style={styles.container}>
@@ -173,7 +191,11 @@ const ProfileScreen = () => {
           <Surface style={styles.statsCard}>
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{sessionsCount}</Text>
+                {loadingStats ? (
+                  <ActivityIndicator size="small" color={COLORS.primary} />
+                ) : (
+                  <Text style={styles.statNumber}>{sessionCount}</Text>
+                )}
                 <Text style={styles.statLabel}>Sessions</Text>
               </View>
               <View style={styles.statSeparator} />

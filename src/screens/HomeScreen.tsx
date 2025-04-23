@@ -125,12 +125,11 @@ const HomeScreen = () => {
       >
         <TouchableOpacity
           onPress={() => {
-            const relevantMeditations = meditationSessions.filter(m => 
-              m.category.toLowerCase() === category.name.toLowerCase()
-            );
-            if (relevantMeditations.length > 0) {
-              navigation.navigate('MeditationDetail', { meditation: relevantMeditations[0] });
-            }
+            // Navigate to the category meditations screen instead of individual meditation
+            navigation.navigate('CategoryMeditations', {
+              categoryName: category.name,
+              categoryColor: category.color
+            });
           }}
           activeOpacity={0.8}
         >
