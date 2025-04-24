@@ -3,10 +3,10 @@ import {
   StyleSheet, 
   View, 
   ScrollView, 
-  SafeAreaView, 
   Animated, 
   Dimensions,
-  StatusBar
+  StatusBar,
+  Platform
 } from 'react-native';
 import { Text, Button, Card, Paragraph, Avatar, IconButton } from 'react-native-paper';
 import { RouteProp } from '@react-navigation/native';
@@ -14,6 +14,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList, AppStackParamList } from '../types';
 import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type MeditationDetailScreenRouteProp = RouteProp<AppStackParamList, 'MeditationDetail'>;
 type MeditationDetailScreenNavigationProp = StackNavigationProp<AppStackParamList, 'MeditationDetail'>;
@@ -64,7 +65,6 @@ const getCategoryAnimation = (category: string) => {
 
 const MeditationDetailScreen = ({ route, navigation }: MeditationDetailScreenProps) => {
   const { meditation } = route.params;
-  const [scrollY] = useState(new Animated.Value(0));
   const [fadeAnim] = useState(new Animated.Value(0));
   const [slideAnim] = useState(new Animated.Value(50));
 
@@ -83,27 +83,18 @@ const MeditationDetailScreen = ({ route, navigation }: MeditationDetailScreenPro
     ]).start();
   }, []);
 
-  const headerOpacity = 1;
-  
-  const headerHeight = 140;
-
   const renderHeader = () => {
     return (
-      <Animated.View style={[styles.animatedHeader, { height: headerHeight }]}>
-        <LinearGradient
-          colors={[COLORS.primary, COLORS.primary]}
-          style={styles.headerGradient}
-        >
-          <View style={styles.headerTopRow}>
-            <IconButton
-              icon="arrow-left"
-              size={24}
-              iconColor={COLORS.textPrimary}
-              onPress={() => navigation.goBack()}
-              style={styles.backButton}
-            />
-          </View>
-          <View style={styles.headerContent}>
+      <Animated.View style={styles.headerContainer}>
+        <View style={styles.headerContent}>
+          <IconButton
+            icon="arrow-left"
+            size={28}
+            iconColor="#FFFFFF"
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          />
+          <View style={styles.titleContainer}>
             <Text style={styles.headerTitle} numberOfLines={2} ellipsizeMode="tail">
               {meditation.name}
             </Text>
@@ -111,13 +102,14 @@ const MeditationDetailScreen = ({ route, navigation }: MeditationDetailScreenPro
               {meditation.duration} minutes • {meditation.category}
             </Text>
           </View>
-        </LinearGradient>
+          <View style={{ width: 28 }} />
+        </View>
       </Animated.View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeAreaContainer}>
       <StatusBar barStyle="light-content" />
       
       <LinearGradient
@@ -129,91 +121,81 @@ const MeditationDetailScreen = ({ route, navigation }: MeditationDetailScreenPro
       
       {renderHeader()}
 
-      <Animated.ScrollView 
-        style={styles.container}
-        scrollEventThrottle={16}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.contentOffset} />
-        
-        <Animated.View style={[
-          styles.contentContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }]
-          }
-        ]}>
-          <Card style={styles.card}>
-            <Card.Content>
-              <View style={styles.infoContainer}>
-                <View style={styles.infoItem}>
-                  <View style={[styles.iconContainer, { backgroundColor: COLORS.primary }]}>
-                    <Ionicons name="time-outline" size={22} color="white" />
-                  </View>
-                  <View>
-                    <Text style={styles.infoLabel}>Duration</Text>
-                    <Text style={styles.infoValue}>{meditation.duration} minutes</Text>
-                  </View>
+      <Animated.View style={[
+        styles.contentContainer,
+        {
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }]
+        }
+      ]}>
+        <Card style={styles.card}>
+          <Card.Content>
+            <View style={styles.infoContainer}>
+              <View style={styles.infoItem}>
+                <View style={[styles.iconContainer, { backgroundColor: COLORS.primary }]}>
+                  <Ionicons name="time-outline" size={22} color="white" />
                 </View>
-                
-                <View style={styles.infoItem}>
-                  <View style={[styles.iconContainer, { backgroundColor: COLORS.primary }]}>
-                    <Ionicons name={getCategoryIcon(meditation.category)} size={22} color="white" />
-                  </View>
-                  <View>
-                    <Text style={styles.infoLabel}>Type</Text>
-                    <Text style={styles.infoValue}>{meditation.category.charAt(0).toUpperCase() + meditation.category.slice(1)}</Text>
-                  </View>
+                <View>
+                  <Text style={styles.infoLabel}>Duration</Text>
+                  <Text style={styles.infoValue}>{meditation.duration} minutes</Text>
                 </View>
               </View>
-
-              <View style={styles.descriptionContainer}>
-                <Text style={styles.sectionTitle}>Description</Text>
-                <Paragraph style={styles.description}>{meditation.description}</Paragraph>
-              </View>
-
-              <View style={styles.attributionContainer}>
-                <Text style={styles.sectionTitle}>Attribution</Text>
-                <Paragraph style={styles.attribution}>
-                  {meditation.attribution || "Original content"}
-                </Paragraph>
-              </View>
-
-              <View style={styles.benefitsContainer}>
-                <Text style={styles.sectionTitle}>Benefits</Text>
-                <View style={styles.benefitsList}>
-                  <View style={styles.benefitItem}>
-                    <View style={[styles.benefitIconContainer, { backgroundColor: COLORS.primary }]}>
-                      <Ionicons name="fitness-outline" size={22} color="white" />
-                    </View>
-                    <Text style={styles.benefitText}>Reduces stress and anxiety</Text>
-                  </View>
-                  <View style={styles.benefitItem}>
-                    <View style={[styles.benefitIconContainer, { backgroundColor: COLORS.primary }]}>
-                      <Ionicons name="heart-outline" size={22} color="white" />
-                    </View>
-                    <Text style={styles.benefitText}>Improves emotional well-being</Text>
-                  </View>
-                  <View style={styles.benefitItem}>
-                    <View style={[styles.benefitIconContainer, { backgroundColor: COLORS.primary }]}>
-                      <Ionicons name="moon-outline" size={22} color="white" />
-                    </View>
-                    <Text style={styles.benefitText}>Enhances sleep quality</Text>
-                  </View>
-                  <View style={styles.benefitItem}>
-                    <View style={[styles.benefitIconContainer, { backgroundColor: COLORS.primary }]}>
-                      <Ionicons name="analytics-outline" size={22} color="white" />
-                    </View>
-                    <Text style={styles.benefitText}>Increases focus and concentration</Text>
-                  </View>
+              
+              <View style={styles.infoItem}>
+                <View style={[styles.iconContainer, { backgroundColor: COLORS.primary }]}>
+                  <Ionicons name={getCategoryIcon(meditation.category)} size={22} color="white" />
+                </View>
+                <View>
+                  <Text style={styles.infoLabel}>Type</Text>
+                  <Text style={styles.infoValue}>{meditation.category.charAt(0).toUpperCase() + meditation.category.slice(1)}</Text>
                 </View>
               </View>
-            </Card.Content>
-          </Card>
-        </Animated.View>
+            </View>
 
-        <View style={styles.footerSpace} />
-      </Animated.ScrollView>
+            <View style={styles.descriptionContainer}>
+              <Text style={styles.sectionTitle}>Description</Text>
+              <Paragraph style={styles.description}>{meditation.description}</Paragraph>
+            </View>
+
+            <View style={styles.attributionContainer}>
+              <Text style={styles.sectionTitle}>Attribution</Text>
+              <Paragraph style={styles.attribution}>
+                {meditation.attribution || "Original content"}
+              </Paragraph>
+            </View>
+
+            <View style={styles.benefitsContainer}>
+              <Text style={styles.sectionTitle}>Benefits</Text>
+              <View style={styles.benefitsList}>
+                <View style={styles.benefitItem}>
+                  <View style={[styles.benefitIconContainer, { backgroundColor: COLORS.primary }]}>
+                    <Ionicons name="fitness-outline" size={22} color="white" />
+                  </View>
+                  <Text style={styles.benefitText}>Reduces stress and anxiety</Text>
+                </View>
+                <View style={styles.benefitItem}>
+                  <View style={[styles.benefitIconContainer, { backgroundColor: COLORS.primary }]}>
+                    <Ionicons name="heart-outline" size={22} color="white" />
+                  </View>
+                  <Text style={styles.benefitText}>Improves emotional well-being</Text>
+                </View>
+                <View style={styles.benefitItem}>
+                  <View style={[styles.benefitIconContainer, { backgroundColor: COLORS.primary }]}>
+                    <Ionicons name="moon-outline" size={22} color="white" />
+                  </View>
+                  <Text style={styles.benefitText}>Enhances sleep quality</Text>
+                </View>
+                <View style={styles.benefitItem}>
+                  <View style={[styles.benefitIconContainer, { backgroundColor: COLORS.primary }]}>
+                    <Ionicons name="analytics-outline" size={22} color="white" />
+                  </View>
+                  <Text style={styles.benefitText}>Increases focus and concentration</Text>
+                </View>
+              </View>
+            </View>
+          </Card.Content>
+        </Card>
+      </Animated.View>
 
       <Animated.View 
         style={[
@@ -238,7 +220,7 @@ const MeditationDetailScreen = ({ route, navigation }: MeditationDetailScreenPro
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  safeAreaContainer: {
     flex: 1,
     backgroundColor: COLORS.dark,
   },
@@ -248,74 +230,54 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
+    zIndex: -1,
   },
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: 15,
-  },
-  contentOffset: {
-    height: 140,
-  },
-  contentContainer: {
-    padding: 16,
-    paddingTop: 0,
-    paddingHorizontal: 24,
-  },
-  animatedHeader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 140,
-    zIndex: 10,
-    backgroundColor: COLORS.primary,
-  },
-  headerGradient: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    paddingBottom: 16,
-  },
-  headerTopRow: {
-    position: 'absolute', 
-    top: 10,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    padding: 8,
-    zIndex: 10,
+  headerContainer: {
+    // Remove background related styles if any
+    // zIndex: 10, // Likely remove zIndex
+    // Height will be determined by content + padding
   },
   headerContent: {
-    paddingHorizontal: 24,
-    paddingTop: 45,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 10 : 10, // Keep padding for positioning
     paddingBottom: 16,
+  },
+  titleContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
   headerTitle: {
     color: COLORS.textPrimary,
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    lineHeight: 30,
+    textAlign: 'center',
   },
   headerSubtitle: {
     color: COLORS.textSecondary,
     fontSize: 14,
     marginTop: 4,
+    textAlign: 'center',
+  },
+  backButton: {
+    padding: 0,
+    margin: 0,
+  },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    justifyContent: 'center',
   },
   card: {
     borderRadius: 16,
     backgroundColor: COLORS.cardBg,
-    elevation: 8,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    marginBottom: 16,
   },
   infoContainer: {
     flexDirection: 'row',
-    marginBottom: 24,
+    marginBottom: 20,
     justifyContent: 'flex-start',
   },
   infoItem: {
@@ -341,40 +303,40 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   descriptionContainer: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 12,
+    marginBottom: 10,
     color: COLORS.textPrimary,
   },
   description: {
     fontSize: 16,
-    lineHeight: 24,
+    lineHeight: 23,
     color: COLORS.textSecondary,
   },
   attributionContainer: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   attribution: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 19,
     fontStyle: 'italic',
     color: COLORS.textSecondary,
   },
   benefitsContainer: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   benefitsList: {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
   },
   benefitItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   benefitIconContainer: {
     width: 42,
@@ -390,20 +352,10 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   buttonContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: COLORS.cardBg,
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
+    marginBottom: 10,
   },
   startButton: {
     borderRadius: 30,
@@ -414,12 +366,6 @@ const styles = StyleSheet.create({
   buttonLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  footerSpace: {
-    height: 100,
-  },
-  backButton: {
-    padding: 8,
   },
 });
 
