@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "meditation-app",
-    "slug": "meditation-app",
+    "name": "Medi",
+    "slug": "medi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,7 +23,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.varunkiragi.meditationapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
