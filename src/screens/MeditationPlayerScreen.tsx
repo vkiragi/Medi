@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, SafeAreaView, TouchableOpacity, Alert, Animated, Easing, ScrollView, Platform } from 'react-native';
+import { StyleSheet, View, SafeAreaView, TouchableOpacity, Alert, Animated, Easing, ScrollView, Platform, StatusBar } from 'react-native';
 import { Text, IconButton, useTheme, ProgressBar, Button } from 'react-native-paper';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -472,6 +472,7 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
   
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
       <ExpoLinearGradient
         colors={DARK_GRADIENT_COLORS}
         style={styles.background}
@@ -482,9 +483,10 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
       <View style={styles.header}>
         <IconButton 
           icon="chevron-left" 
-          size={30} 
+          size={28} 
           onPress={handleBack}
           iconColor="#FFFFFF"
+          style={styles.backIcon}
         />
         <Text style={styles.headerTitle}>{meditation.name}</Text>
         <IconButton 
@@ -495,165 +497,136 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
         />
       </View>
       
-      {loadingAudio ? (
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading audio...</Text>
-          <ProgressBar indeterminate color={primaryColor} style={styles.loadingBar} />
-        </View>
-      ) : audioLoadError ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Unable to load audio</Text>
-          <Text style={styles.errorMessage}>
-            There was a problem loading the meditation audio.
-            Please make sure you have the audio files in your assets folder.
-          </Text>
-          <Button 
-            mode="contained" 
-            onPress={retryAudioLoading}
-            buttonColor={primaryColor}
-            style={styles.retryButton}
-            textColor="#FFFFFF"
-          >
-            Retry
-          </Button>
-          <Button 
-            mode="outlined" 
-            onPress={handleBack}
-            style={[styles.backButton, { borderColor: primaryColor }]}
-            textColor={primaryColor}
-          >
-            Go Back
-          </Button>
-        </View>
-      ) : (
-        <ScrollView 
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.timerContainerOuter}>
-            <View style={styles.timerContainer}>
-              <View style={styles.timerCircleContainer}>
-                <Svg width="200" height="200" viewBox="0 0 200 200" style={styles.svg}>
-                  <Defs>
-                    <LinearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <Stop offset="0%" stopColor="#7928CA" />
-                      <Stop offset="100%" stopColor="#FF0080" />
-                    </LinearGradient>
-                  </Defs>
-                  
-                  {/* Background Circle */}
-                  <Circle
-                    cx="100"
-                    cy="100"
-                    r="90"
-                    strokeWidth="8"
-                    stroke="rgba(121, 40, 202, 0.2)"
-                    fill="transparent"
-                  />
-                  
-                  {/* Progress Circle - Using AnimatedCircle for continuous animation */}
-                  <G transform="rotate(-90, 100, 100)">
-                    <AnimatedCircle
+      <View style={styles.contentArea}>
+        {loadingAudio ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading audio...</Text>
+            <ProgressBar indeterminate color={primaryColor} style={styles.loadingBar} />
+          </View>
+        ) : audioLoadError ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorTitle}>Unable to load audio</Text>
+            <Text style={styles.errorMessage}>
+              There was a problem loading the meditation audio.
+              Please make sure you have the audio files in your assets folder.
+            </Text>
+            <Button 
+              mode="contained" 
+              onPress={retryAudioLoading}
+              buttonColor={primaryColor}
+              style={styles.retryButton}
+              textColor="#FFFFFF"
+            >
+              Retry
+            </Button>
+            <Button 
+              mode="outlined" 
+              onPress={handleBack}
+              style={[styles.backButton, { borderColor: primaryColor }]}
+              textColor={primaryColor}
+            >
+              Go Back
+            </Button>
+          </View>
+        ) : (
+          <>
+            <View style={styles.timerContainerOuter}>
+              <View style={styles.timerContainer}>
+                <View style={styles.timerCircleContainer}>
+                  <Svg width="200" height="200" viewBox="0 0 200 200" style={styles.svg}>
+                    <Defs>
+                      <LinearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <Stop offset="0%" stopColor="#7928CA" />
+                        <Stop offset="100%" stopColor="#FF0080" />
+                      </LinearGradient>
+                    </Defs>
+                    
+                    <Circle
                       cx="100"
                       cy="100"
                       r="90"
                       strokeWidth="8"
-                      stroke="url(#progressGradient)"
+                      stroke="rgba(121, 40, 202, 0.2)"
                       fill="transparent"
-                      strokeDasharray={CIRCLE_LENGTH}
-                      strokeDashoffset={circleDashoffset}
-                      strokeLinecap="round"
                     />
-                  </G>
-                </Svg>
-                
-                <View style={styles.timerTextContainer}>
-                  <Text style={styles.timerText}>{formatTime(timeRemaining)}</Text>
-                  <Text style={styles.sessionText}>
-                    {isPlaying ? 'Session in progress' : timeElapsed > 0 ? 'Session paused' : 'Ready to begin'}
-                  </Text>
+                    
+                    <G transform="rotate(-90, 100, 100)">
+                      <AnimatedCircle
+                        cx="100"
+                        cy="100"
+                        r="90"
+                        strokeWidth="8"
+                        stroke="url(#progressGradient)"
+                        fill="transparent"
+                        strokeDasharray={CIRCLE_LENGTH}
+                        strokeDashoffset={circleDashoffset}
+                        strokeLinecap="round"
+                      />
+                    </G>
+                  </Svg>
+                  
+                  <View style={styles.timerTextContainer}>
+                    <Text style={styles.timerText}>{formatTime(timeRemaining)}</Text>
+                    <Text style={styles.sessionText}>
+                      {isPlaying ? 'Session in progress' : timeElapsed > 0 ? 'Session paused' : 'Ready to begin'}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-            
-            <View style={styles.controlsContainer}>
-              <IconButton 
-                icon="replay" 
-                size={30} 
-                onPress={handleReset}
-                style={styles.controlButton}
-                disabled={!audioLoaded}
-                iconColor="#FFFFFF"
-              />
-              <TouchableOpacity 
-                style={[styles.playButton, {
-                  backgroundColor: audioLoaded ? primaryColor : 'rgba(121, 40, 202, 0.4)'
-                }]} 
-                onPress={togglePlayPause}
-                disabled={!audioLoaded}
-              >
+              
+              <View style={styles.controlsContainer}>
                 <IconButton 
-                  icon={isPlaying ? "pause" : "play"} 
-                  size={34}
+                  icon="replay" 
+                  size={28} 
+                  onPress={handleReset}
+                  style={styles.controlButton}
+                  disabled={!audioLoaded}
                   iconColor="#FFFFFF"
                 />
-              </TouchableOpacity>
-              <IconButton 
-                icon="fast-forward" 
-                size={30} 
-                onPress={handleSkipForward}
-                style={styles.controlButton}
-                disabled={!audioLoaded}
-                iconColor="#1A1A1A"
-              />
+                <TouchableOpacity 
+                  style={[styles.playButton, { backgroundColor: audioLoaded ? primaryColor : 'rgba(121, 40, 202, 0.4)' }]} 
+                  onPress={togglePlayPause}
+                  disabled={!audioLoaded}
+                >
+                  <IconButton icon={isPlaying ? "pause" : "play"} size={30} iconColor="#FFFFFF"/>
+                </TouchableOpacity>
+                <IconButton 
+                  icon="fast-forward" 
+                  size={28} 
+                  onPress={handleSkipForward}
+                  style={styles.controlButton}
+                  disabled={!audioLoaded}
+                  iconColor="#FFFFFF"
+                />
+              </View>
             </View>
-          </View>
 
-          <View style={styles.infoContainer}>
-            <Text style={styles.infoTitle}>Mindfulness Tips</Text>
-            
-            <View style={styles.tipCard}>
-              <IconButton 
-                icon="meditation" 
-                size={24} 
-                iconColor={primaryColor}
-                style={styles.tipIcon}
-              />
-              <Text style={styles.tipText}>Focus on your breathing, in and out</Text>
+            <View style={styles.infoContainer}>
+              <Text style={styles.infoTitle}>Mindfulness Tips</Text>
+              
+              <View style={styles.tipCard}>
+                <IconButton icon="meditation" size={20} iconColor={primaryColor} style={styles.tipIcon}/>
+                <Text style={styles.tipText}>Focus on your breathing, in and out</Text>
+              </View>
+              
+              <View style={styles.tipCard}>
+                <IconButton icon="brain" size={20} iconColor={secondaryColor} style={styles.tipIcon}/>
+                <Text style={styles.tipText}>When your mind wanders, gently bring it back</Text>
+              </View>
+              
+              <View style={styles.tipCard}>
+                <IconButton icon="human" size={20} iconColor="#5B7DE5" style={styles.tipIcon}/>
+                <Text style={styles.tipText}>Notice sensations in your body</Text>
+              </View>
+              
+              <View style={styles.tipCard}>
+                <IconButton icon="clock-time-four" size={20} iconColor="#6A5ACD" style={styles.tipIcon}/>
+                <Text style={styles.tipText}>Be present in the moment</Text>
+              </View>
             </View>
-            
-            <View style={styles.tipCard}>
-              <IconButton 
-                icon="brain" 
-                size={24} 
-                iconColor={secondaryColor}
-                style={styles.tipIcon}
-              />
-              <Text style={styles.tipText}>When your mind wanders, gently bring it back</Text>
-            </View>
-            
-            <View style={styles.tipCard}>
-              <IconButton 
-                icon="human" 
-                size={24} 
-                iconColor="#5B7DE5"
-                style={styles.tipIcon}
-              />
-              <Text style={styles.tipText}>Notice sensations in your body</Text>
-            </View>
-            
-            <View style={styles.tipCard}>
-              <IconButton 
-                icon="clock-time-four" 
-                size={24} 
-                iconColor="#6A5ACD"
-                style={styles.tipIcon}
-              />
-              <Text style={styles.tipText}>Be present in the moment</Text>
-            </View>
-          </View>
-        </ScrollView>
-      )}
+          </>
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -670,45 +643,40 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
   },
-  scrollContent: {
-    paddingBottom: 20,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
     paddingHorizontal: 16,
     paddingTop: Platform.OS === 'ios' ? 4 : 0,
+    paddingBottom: 12,
   },
   headerTitle: {
+    flex: 1, 
+    textAlign: 'center',
     fontSize: 20,
     fontWeight: 'bold',
     color: textPrimary,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
+  backIcon: {
+    margin: 0,
+  },
+  contentArea: {
+    flex: 1,
+    paddingHorizontal: 16, 
+    paddingBottom: 10,
+    justifyContent: 'space-around',
+  },
   timerContainerOuter: {
     backgroundColor: darkCard,
     borderRadius: 16,
-    padding: 15,
-    marginHorizontal: 16,
-    marginBottom: 20,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'rgba(0, 0, 0, 0.5)',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.5,
-        shadowRadius: 20,
-      },
-      android: {
-        elevation: 10,
-      },
-    }),
+    padding: 20,
   },
   timerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 10,
+    marginVertical: 15,
   },
   timerCircleContainer: {
     width: 200,
@@ -716,6 +684,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+    marginBottom: 15,
   },
   svg: {
     position: 'absolute',
@@ -733,8 +702,8 @@ const styles = StyleSheet.create({
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   sessionText: {
-    marginTop: 6,
-    fontSize: 14,
+    marginTop: 4,
+    fontSize: 13,
     color: textSecondary,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
@@ -742,54 +711,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
-    paddingTop: 15,
+    marginTop: 15,
+    paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: lightPurple,
   },
   controlButton: {
-    marginHorizontal: 20,
+    marginHorizontal: 15,
   },
   playButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: 'rgba(121, 40, 202, 0.5)',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.5,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 10,
-      },
-    }),
   },
   infoContainer: {
     backgroundColor: darkCard,
     borderRadius: 16,
-    padding: 20,
-    marginHorizontal: 16,
-    marginTop: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'rgba(0, 0, 0, 0.5)',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.5,
-        shadowRadius: 20,
-      },
-      android: {
-        elevation: 10,
-      },
-    }),
+    padding: 15,
   },
   infoTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 10,
     color: textPrimary,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
@@ -797,18 +742,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(40, 40, 40, 0.8)',
-    borderRadius: 12,
-    marginBottom: 10,
-    padding: 8,
+    borderRadius: 10,
+    marginBottom: 8,
+    padding: 6,
   },
   tipIcon: {
     margin: 0,
+    marginRight: 8,
   },
   tipText: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     color: textPrimary,
-    paddingRight: 8,
+    paddingRight: 4,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   loadingContainer: {
