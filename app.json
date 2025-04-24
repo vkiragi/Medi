@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "MeditationApp",
-    "slug": "MeditationApp",
+    "name": "meditation-app",
+    "slug": "meditation-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,22 +10,30 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F8F9FE"
+      "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.varunkiragi.meditationapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#F8F9FE"
+        "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font"
+    ],
+    "extra": {
+      "supabaseUrl": "https://ynrrhthrjpztqluhbhfj.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlucnJodGhyanB6dHFsdWhiaGZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM4NjU0NjEsImV4cCI6MjAyOTQ0MTQ2MX0.l0yF9fGWHjT8k7y9Sg7P8fJgS3bC7HqV270-yTSoi5w"
     }
   }
 }

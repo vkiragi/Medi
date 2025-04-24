@@ -1,11 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, SafeAreaView, TouchableOpacity, Alert, Animated, Easing, ScrollView, Platform, StatusBar } from 'react-native';
-import { Text, IconButton, useTheme, ProgressBar, Button } from 'react-native-paper';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, View, SafeAreaView, TouchableOpacity, Alert, Platform, StatusBar, ActivityIndicator } from 'react-native';
+import { Text, IconButton, useTheme, Button } from 'react-native-paper';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Audio } from 'expo-av';
-import { AppStackParamList, RootStackParamList } from '../types';
-import Svg, { Circle, G, LinearGradient, Stop, Defs, Rect } from 'react-native-svg';
+import TrackPlayer, {
+  usePlaybackState,
+  useProgress,
+  Capability,
+  RepeatMode,
+  State,
+  Event,
+  PlaybackState
+} from 'react-native-track-player';
+import Slider from '@react-native-community/slider';
+import { AppStackParamList } from '../types';
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import appTheme from '../theme';
 import { recordMeditationSession, incrementPlayCount } from '../services/api';
@@ -19,10 +27,6 @@ const darkSurface = '#121212'; // Near-black surface
 const lightPurple = 'rgba(121, 40, 202, 0.2)'; // Translucent light purple
 const textPrimary = '#FFFFFF'; // White text
 const textSecondary = '#A1A1A1'; // Light gray text
-
-// Create animated components
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
 // Import these gradient colors directly
 const DARK_GRADIENT_COLORS = ['#0F0F0F', '#171717', '#1F1F1F'] as const;
@@ -55,421 +59,170 @@ interface MeditationPlayerScreenProps {
 
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
+  const secs = Math.round(seconds % 60); // Use Math.round for better display
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 };
 
-const CIRCLE_LENGTH = 1000; // Circumference of circle
-const CIRCLE_RADIUS = CIRCLE_LENGTH / (2 * Math.PI);
-
 const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenProps) => {
-  // Correctly access meditation object from route params
   const { meditation } = route.params;
   const theme = useTheme();
-  
-  // Use refs for timers and intervals
-  const soundRef = useRef<Audio.Sound | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
-  
-  // Create animated values for continuous animations
-  const circleProgressAnimation = useRef(new Animated.Value(0)).current;
-  const barProgressAnimation = useRef(new Animated.Value(0)).current;
-  
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(meditation.duration * 60);
-  const [timeElapsed, setTimeElapsed] = useState(0);
-  const [audioLoaded, setAudioLoaded] = useState(false);
-  const [audioLoadError, setAudioLoadError] = useState(false);
-  const [loadingAudio, setLoadingAudio] = useState(true);
+  const playbackState = usePlaybackState();
+  const playerState = playbackState.state;
+  const { position, duration, buffered } = useProgress();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [sessionCompleted, setSessionCompleted] = useState(false);
-  const totalTime = meditation.duration * 60;
-  
-  // Map the circleProgressAnimation to the dashoffset for continuous animation
-  const circleDashoffset = circleProgressAnimation.interpolate({
-    inputRange: [0, totalTime],
-    outputRange: [CIRCLE_LENGTH, 0],
-    extrapolate: 'clamp'
-  });
-  
-  // Keep barWidth for now to avoid breaking functionality
-  const barWidth = barProgressAnimation.interpolate({
-    inputRange: [0, totalTime],
-    outputRange: ['0%', '100%'],
-    extrapolate: 'clamp'
-  });
 
-  // Setup and manage the continuous animation
-  const setupContinuousAnimations = () => {
-    // Cancel any existing animations
-    if (animationRef.current) {
-      animationRef.current.stop();
-    }
-    
-    // Calculate how much time is left
-    const remainingTime = totalTime - timeElapsed;
-    
-    // Create a continuous animation for the circle
-    animationRef.current = Animated.timing(circleProgressAnimation, {
-      toValue: totalTime, // Target is full completion
-      duration: remainingTime * 1000, // Convert seconds to milliseconds
-      easing: Easing.linear, // Linear easing for continuous movement
-      useNativeDriver: false, // We need to animate SVG properties which require JS driver
-    });
-    
-    // Update the barProgressAnimation value (even though we won't display it)
-    barProgressAnimation.setValue(timeElapsed);
-  };
+  const isPlaying = playerState === State.Playing || playerState === State.Buffering;
 
-  // Effect to control animations when play/pause state changes
-  useEffect(() => {
-    if (isPlaying) {
-      // Setup fresh animations from the current position
-      setupContinuousAnimations();
-      // Start the animations
-      if (animationRef.current) {
-        animationRef.current.start();
-      }
-    } else {
-      // Pause the animations by stopping them at current position
-      if (animationRef.current) {
-        animationRef.current.stop();
-      }
-    }
-    
-    return () => {
-      if (animationRef.current) {
-        animationRef.current.stop();
-      }
-    };
-  }, [isPlaying]);
-
-  // When timeElapsed changes (like during skip or reset), update animations
-  useEffect(() => {
-    // Update the current animation values to match timeElapsed
-    circleProgressAnimation.setValue(timeElapsed);
-    barProgressAnimation.setValue(timeElapsed);
-    
-    // If we're currently playing, restart the animations from this new position
-    if (isPlaying) {
-      setupContinuousAnimations();
-      if (animationRef.current) {
-        animationRef.current.start();
-      }
-    }
-  }, [timeElapsed]);
-
-  // Load audio and set up Audio session
-  useEffect(() => {
-    const setupAudio = async () => {
-      try {
-        setLoadingAudio(true);
-        // Configure audio session
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          staysActiveInBackground: true,
-          playsInSilentModeIOS: true,
-          shouldDuckAndroid: true,
-          playThroughEarpieceAndroid: false
-        });
-        
-        // Create a new sound object
-        const sound = new Audio.Sound();
-        
-        try {
-          // Load from local asset using soundPath
-          if (meditation.soundPath) {
-            await sound.loadAsync(meditation.soundPath);
-          } else {
-            // Fallback to default audio
-            await sound.loadAsync(require('../../assets/meditation.mp3'));
-          }
-          
-          soundRef.current = sound;
-          
-          // Set looping behavior - we don't want looping for meditation
-          await sound.setIsLoopingAsync(false);
-          // Set appropriate volume
-          await sound.setVolumeAsync(0.8);
-          
-          setAudioLoaded(true);
-          setAudioLoadError(false);
-        } catch (error) {
-          console.error('Error loading audio:', error);
-          setAudioLoadError(true);
-        }
-      } catch (error) {
-        console.error('Error setting up audio:', error);
-        setAudioLoadError(true);
-      } finally {
-        setLoadingAudio(false);
-      }
-    };
-    
-    setupAudio();
-    
-    // Cleanup function
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      if (animationRef.current) {
-        animationRef.current.stop();
-      }
-    };
-  }, []);
-  
-  // Timer effect
-  useEffect(() => {
-    if (isPlaying && timeRemaining > 0) {
-      // Clear any existing interval
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      
-      // Create new interval
-      intervalRef.current = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            // If time is about to run out, clear interval and handle completion
-            if (intervalRef.current) {
-              clearInterval(intervalRef.current);
-            }
-            handleComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
-        setTimeElapsed(prev => prev + 1);
-      }, 1000);
-    } else if (!isPlaying && intervalRef.current) {
-      // If not playing, clear the interval
-      clearInterval(intervalRef.current);
-    }
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isPlaying]);
-  
-  // Handle play/pause
-  const togglePlayPause = async () => {
+  const setupPlayer = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(null);
     try {
-      if (!soundRef.current || !audioLoaded) return;
-      
-      if (isPlaying) {
-        await soundRef.current.pauseAsync();
-        setIsPlaying(false);
+      try {
+          await TrackPlayer.getActiveTrack();
+          await TrackPlayer.reset();
+      } catch {
+          await TrackPlayer.setupPlayer();
+      }
+
+      await TrackPlayer.updateOptions({
+        capabilities: [
+          Capability.Play,
+          Capability.Pause,
+          Capability.SeekTo,
+        ],
+        compactCapabilities: [Capability.Play, Capability.Pause, Capability.SeekTo],
+        alwaysPauseOnInterruption: true,
+      });
+
+      let audioSource;
+      if (meditation.soundPath) {
+          try {
+              audioSource = meditation.soundPath;
+          } catch (e) {
+              console.error("Could not resolve meditation.soundPath, falling back", e);
+              audioSource = require('../../assets/meditation.mp3');
+          }
       } else {
-        await soundRef.current.playAsync();
-        setIsPlaying(true);
+        audioSource = require('../../assets/meditation.mp3');
       }
-    } catch (error) {
-      console.error('Error toggling playback:', error);
-      Alert.alert('Playback Error', 'Could not play or pause meditation.');
+
+      await TrackPlayer.add({
+        id: meditation.id.toString(),
+        url: audioSource,
+        title: meditation.name,
+        artist: 'Meditation App',
+        duration: meditation.duration * 60,
+      });
+
+      await TrackPlayer.setRepeatMode(RepeatMode.Off);
+
+      setIsPlayerReady(true);
+      setLoadError(null);
+    } catch (error: any) {
+      console.error('Error setting up Track Player:', error);
+      setLoadError(error.message || 'Failed to initialize audio player.');
+      setIsPlayerReady(false);
+    } finally {
+      setIsLoading(false);
     }
-  };
-  
-  // Handle reset
-  const handleReset = async () => {
-    try {
-      if (soundRef.current && audioLoaded) {
-        await soundRef.current.stopAsync();
-        await soundRef.current.playFromPositionAsync(0);
-        if (!isPlaying) {
-          await soundRef.current.pauseAsync();
-        }
+  }, [meditation]);
+
+  useEffect(() => {
+    setupPlayer();
+
+    return () => {
+      TrackPlayer.reset();
+    };
+  }, [setupPlayer]);
+
+  useEffect(() => {
+    const listener = TrackPlayer.addEventListener(Event.PlaybackQueueEnded, (data) => {
+      if (playerState !== State.Stopped && playerState !== State.None && data.position > 0 && !sessionCompleted) {
+        console.log('[TrackPlayer] PlaybackQueueEnded, triggering handleComplete');
+        handleComplete();
       }
-      
-      // Reset timer states
-      setTimeRemaining(totalTime);
-      setTimeElapsed(0);
-      
-      // Immediately reset the animations to starting position
-      circleProgressAnimation.setValue(0);
-      barProgressAnimation.setValue(0);
-      
-      // Setup animations from the beginning if playing
-      if (isPlaying) {
-        setupContinuousAnimations();
-        if (animationRef.current) {
-          animationRef.current.start();
-        }
-      }
-    } catch (error) {
-      console.error('Error resetting playback:', error);
-    }
-  };
-  
-  // Handle skip forward (5 seconds)
-  const handleSkipForward = async () => {
-    // Calculate new times
-    const skipAmount = 5; // seconds to skip
-    
-    // Don't allow skipping past the end
-    if (timeRemaining <= skipAmount) {
-      handleComplete();
-      return;
-    }
-    
-    // Update timers
-    const newTimeRemaining = timeRemaining - skipAmount;
-    const newTimeElapsed = timeElapsed + skipAmount;
-    
-    setTimeRemaining(newTimeRemaining);
-    setTimeElapsed(newTimeElapsed);
-    
-    // Update animation values
-    circleProgressAnimation.setValue(newTimeElapsed);
-    barProgressAnimation.setValue(newTimeElapsed);
-    
-    // If playing, restart animations from new position
+    });
+    return () => listener.remove();
+  }, [sessionCompleted, playerState]);
+
+  const togglePlayPause = async () => {
+    if (!isPlayerReady || loadError) return;
     if (isPlaying) {
-      setupContinuousAnimations();
-      if (animationRef.current) {
-        animationRef.current.start();
-      }
-    }
-    
-    try {
-      // For guided meditations, we need to properly seek within the audio file
-      if (soundRef.current && audioLoaded) {
-        const status = await soundRef.current.getStatusAsync();
-        if (status.isLoaded) {
-          // Get current position in milliseconds
-          const currentPositionMs = status.positionMillis || 0;
-          // Add skip amount (convert seconds to ms)
-          const newPositionMs = currentPositionMs + (skipAmount * 1000);
-          // Seek to new position
-          await soundRef.current.setPositionAsync(newPositionMs);
-          
-          // If it wasn't playing, restart playback
-          if (!status.isPlaying && isPlaying) {
-            await soundRef.current.playAsync();
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error seeking audio:', error);
-    }
-  };
-  
-  // Handle completion
-  const handleComplete = async () => {
-    try {
-      if (soundRef.current && audioLoaded) {
-        await soundRef.current.stopAsync();
-      }
-      setIsPlaying(false);
-      
-      // Stop the animations
-      if (animationRef.current) {
-        animationRef.current.stop();
-      }
-      
-      if (!sessionCompleted) {
-        setSessionCompleted(true);
-        
-        // Record the meditation session
-        try {
-          await recordMeditationSession(
-            meditation.id,
-            totalTime,
-            true, // completed
-            '' // no notes for now
-          );
-          
-          // Increment the play count for this meditation
-          await incrementPlayCount(meditation.id);
-          
-          console.log('[MeditationPlayer] Session recorded successfully');
-        } catch (error) {
-          console.error('[MeditationPlayer] Error recording session:', error);
-        }
-        
-        Alert.alert(
-          'Session Complete', 
-          'Your meditation session has completed. Great job!',
-          [{ text: 'OK', onPress: () => navigation.goBack() }]
-        );
-      }
-    } catch (error) {
-      console.error('Error completing session:', error);
-    }
-  };
-  
-  // Handle back
-  const handleBack = async () => {
-    try {
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-      }
-      navigation.goBack();
-    } catch (error) {
-      console.error('Error navigating back:', error);
-      navigation.goBack();
+      await TrackPlayer.pause();
+    } else {
+      await TrackPlayer.play();
     }
   };
 
-  // Retry loading audio
-  const retryAudioLoading = () => {
-    setAudioLoadError(false);
-    setLoadingAudio(true);
-    
-    // Reset the soundRef
-    if (soundRef.current) {
-      soundRef.current.unloadAsync();
-      soundRef.current = null;
+  const handleReset = async () => {
+    if (!isPlayerReady || loadError) return;
+    await TrackPlayer.seekTo(0);
+    if (playerState !== State.Playing) {
+       await TrackPlayer.pause();
     }
-    
-    // Rerun the setup effect
-    const setupAudio = async () => {
-      try {
-        // Configure audio session
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          staysActiveInBackground: true,
-          playsInSilentModeIOS: true,
-          shouldDuckAndroid: true,
-          playThroughEarpieceAndroid: false
-        });
-        
-        // Create a new sound object
-        const sound = new Audio.Sound();
-        
-        try {
-          // Load from local asset
-          if (meditation.soundPath) {
-            await sound.loadAsync(meditation.soundPath);
-          } else {
-            await sound.loadAsync(require('../../assets/meditation.mp3'));
-          }
-          
-          soundRef.current = sound;
-          await sound.setIsLoopingAsync(false);
-          await sound.setVolumeAsync(0.8);
-          setAudioLoaded(true);
-          setAudioLoadError(false);
-        } catch (error) {
-          console.error('Error loading audio on retry:', error);
-          setAudioLoadError(true);
-        }
-      } catch (error) {
-        console.error('Error setting up audio on retry:', error);
-        setAudioLoadError(true);
-      } finally {
-        setLoadingAudio(false);
-      }
-    };
-    
-    setupAudio();
+     setSessionCompleted(false);
   };
-  
+
+  const handleSkipForward = async () => {
+    if (!isPlayerReady || loadError) return;
+    const newPosition = Math.min(position + 5, duration);
+    if (newPosition >= duration - 1 && duration > 0) {
+        handleComplete();
+    } else {
+        await TrackPlayer.seekTo(newPosition);
+    }
+  };
+
+  const handleSeek = async (value: number) => {
+      if (!isPlayerReady || loadError) return;
+      await TrackPlayer.seekTo(value);
+  };
+
+  const handleComplete = useCallback(async () => {
+    if (sessionCompleted || !isPlayerReady) return;
+    
+    console.log('[handleComplete] Called');
+    setSessionCompleted(true);
+
+    try {
+      await recordMeditationSession(
+        meditation.id,
+        meditation.duration * 60,
+        true,
+        ''
+      );
+      await incrementPlayCount(meditation.id);
+      console.log('[MeditationPlayer] Session recorded successfully via handleComplete');
+
+      Alert.alert(
+        'Session Complete',
+        'Your meditation session has completed. Great job!',
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
+    } catch (error) {
+      console.error('[MeditationPlayer] Error recording session:', error);
+       Alert.alert(
+        'Completion Error',
+        'Session finished, but there was an error recording your progress.',
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
+    }
+  }, [meditation, navigation, isPlayerReady, sessionCompleted]);
+
+  const handleBack = async () => {
+    navigation.goBack();
+  };
+
+  const retryAudioLoading = () => {
+    setupPlayer();
+  };
+
+  const timeRemaining = Math.max(0, duration - position);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -498,18 +251,15 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
       </View>
       
       <View style={styles.contentArea}>
-        {loadingAudio ? (
+        {isLoading ? (
           <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Loading audio...</Text>
-            <ProgressBar indeterminate color={primaryColor} style={styles.loadingBar} />
+             <ActivityIndicator size="large" color={primaryColor} />
+             <Text style={styles.loadingText}>Initializing player...</Text>
           </View>
-        ) : audioLoadError ? (
+        ) : loadError ? (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorTitle}>Unable to load audio</Text>
-            <Text style={styles.errorMessage}>
-              There was a problem loading the meditation audio.
-              Please make sure you have the audio files in your assets folder.
-            </Text>
+            <Text style={styles.errorTitle}>Audio Error</Text>
+            <Text style={styles.errorMessage}>{loadError}</Text>
             <Button 
               mode="contained" 
               onPress={retryAudioLoading}
@@ -531,62 +281,48 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
         ) : (
           <>
             <View style={styles.timerContainerOuter}>
-              <View style={styles.timerContainer}>
-                <View style={styles.timerCircleContainer}>
-                  <Svg width="200" height="200" viewBox="0 0 200 200" style={styles.svg}>
-                    <Defs>
-                      <LinearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <Stop offset="0%" stopColor="#7928CA" />
-                        <Stop offset="100%" stopColor="#FF0080" />
-                      </LinearGradient>
-                    </Defs>
-                    
-                    <Circle
-                      cx="100"
-                      cy="100"
-                      r="90"
-                      strokeWidth="8"
-                      stroke="rgba(121, 40, 202, 0.2)"
-                      fill="transparent"
-                    />
-                    
-                    <G transform="rotate(-90, 100, 100)">
-                      <AnimatedCircle
-                        cx="100"
-                        cy="100"
-                        r="90"
-                        strokeWidth="8"
-                        stroke="url(#progressGradient)"
-                        fill="transparent"
-                        strokeDasharray={CIRCLE_LENGTH}
-                        strokeDashoffset={circleDashoffset}
-                        strokeLinecap="round"
-                      />
-                    </G>
-                  </Svg>
-                  
-                  <View style={styles.timerTextContainer}>
-                    <Text style={styles.timerText}>{formatTime(timeRemaining)}</Text>
-                    <Text style={styles.sessionText}>
-                      {isPlaying ? 'Session in progress' : timeElapsed > 0 ? 'Session paused' : 'Ready to begin'}
-                    </Text>
-                  </View>
-                </View>
+              <View style={styles.timerTextContainer}>
+                <Text style={styles.timerText}>{formatTime(timeRemaining)}</Text>
+                <Text style={styles.sessionText}>
+                  {playerState === State.Playing ? 'Session in progress' :
+                   playerState === State.Paused ? 'Session paused' :
+                   playerState === State.Ready || playerState === State.Stopped || playerState === State.None ? 'Ready to begin' :
+                   playerState === State.Buffering ? 'Buffering...' :
+                   playerState === State.Connecting ? 'Connecting...' :
+                   'Loading...'}
+                </Text>
               </View>
+
+              <Slider
+                  style={styles.slider}
+                  minimumValue={0}
+                  maximumValue={duration > 0 ? duration : 1}
+                  value={position}
+                  minimumTrackTintColor={primaryColor}
+                  maximumTrackTintColor={lightPurple}
+                  thumbTintColor={primaryColor}
+                  onSlidingComplete={handleSeek}
+                  disabled={!isPlayerReady || duration <= 0}
+              />
               
+              <View style={styles.timeLabels}>
+                   <Text style={styles.timeLabelText}>{formatTime(position)}</Text>
+                   <Text style={styles.timeLabelText}>{formatTime(duration)}</Text>
+               </View>
+
               <View style={styles.controlsContainer}>
                 <IconButton 
                   icon="replay" 
                   size={28} 
                   onPress={handleReset}
                   style={styles.controlButton}
-                  disabled={!audioLoaded}
+                  disabled={!isPlayerReady}
                   iconColor="#FFFFFF"
                 />
                 <TouchableOpacity 
-                  style={[styles.playButton, { backgroundColor: audioLoaded ? primaryColor : 'rgba(121, 40, 202, 0.4)' }]} 
+                  style={[styles.playButton, { backgroundColor: isPlayerReady ? primaryColor : 'rgba(121, 40, 202, 0.4)' }]} 
                   onPress={togglePlayPause}
-                  disabled={!audioLoaded}
+                  disabled={!isPlayerReady}
                 >
                   <IconButton icon={isPlaying ? "pause" : "play"} size={30} iconColor="#FFFFFF"/>
                 </TouchableOpacity>
@@ -595,7 +331,7 @@ const MeditationPlayerScreen = ({ route, navigation }: MeditationPlayerScreenPro
                   size={28} 
                   onPress={handleSkipForward}
                   style={styles.controlButton}
-                  disabled={!audioLoaded}
+                  disabled={!isPlayerReady}
                   iconColor="#FFFFFF"
                 />
               </View>
@@ -673,27 +409,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
   },
-  timerContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 15,
-  },
-  timerCircleContainer: {
-    width: 200,
-    height: 200,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    marginBottom: 15,
-  },
-  svg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-  },
   timerTextContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 15,
   },
   timerText: {
     fontSize: 42,
@@ -711,7 +429,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: 20,
     paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: lightPurple,
@@ -765,14 +483,9 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    marginBottom: 20,
+    marginTop: 15,
     color: textSecondary,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
-  },
-  loadingBar: {
-    width: '100%',
-    height: 6,
-    borderRadius: 3,
   },
   errorContainer: {
     flex: 1,
@@ -803,6 +516,22 @@ const styles = StyleSheet.create({
   backButton: {
     paddingHorizontal: 30,
     paddingVertical: 6,
+  },
+  slider: {
+    width: '100%',
+    height: 40,
+  },
+  timeLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 5,
+    marginTop: -5,
+     marginBottom: 10,
+  },
+  timeLabelText: {
+    fontSize: 12,
+    color: textSecondary,
   },
 });
 
