@@ -679,7 +679,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 20,
     paddingHorizontal: 16,
-    paddingTop: 10,
+    paddingTop: Platform.OS === 'ios' ? 4 : 0,
   },
   headerTitle: {
     fontSize: 20,
