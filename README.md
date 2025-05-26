@@ -1,80 +1,140 @@
-# medi - Simple Meditation App
+# medi - iOS Meditation App
 
 A beautiful, minimalist meditation app built with SwiftUI for iOS.
 
-## Features
+![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)
+![iOS](https://img.shields.io/badge/iOS-16.0+-blue.svg)
+![Xcode](https://img.shields.io/badge/Xcode-14.0+-blue.svg)
 
-- **Meditation Timer**: Choose from preset durations (5, 10, 15, 20 minutes)
-- **Breathing Animation**: Visual breathing guide that synchronizes with your meditation
-- **Session Tracking**: Keep track of your meditation history and progress
+## ✨ Features
+
+- **Timer Meditation**: Choose from preset durations (5, 10, 15, 20 minutes)
+- **Guided Meditations**: 6 different guided sessions (3-10 minutes)
+  - 3-Minute Breathing - Gentle introduction
+  - Life Happens Breathing (5 min) - For stressful moments
+  - MARC Breathing (5 min) - Mindfulness-based practice
+  - Still Mind Breath Awareness (6 min) - Cultivating awareness
+  - 10-Minute Breathing - Extended session
+  - Padraig's Mindfulness (10 min) - Mindfulness of breathing
+- **Breathing Animation**: Visual breathing guide that synchronizes with meditation
+- **Session Tracking**: Keep track of meditation history and progress
+- **Progress Stats**: View total sessions, minutes meditated, and current streak
 - **Clean UI**: Minimalist design with soothing colors and smooth animations
-- **Progress Stats**: View your total sessions, minutes meditated, and current streak
 
-## Requirements
+## 📱 Screenshots
+
+The app features three main tabs:
+- **Meditate**: Silent timer with breathing animation
+- **Guided**: List of guided meditation sessions with audio playback
+- **History**: Track your meditation progress and streaks
+
+## 🚀 Getting Started
+
+### Requirements
 
 - iOS 16.0+
 - Xcode 14.0+
 - Swift 5.9+
 
-## Getting Started
+### Installation
 
-### Option 1: Open in Xcode (Recommended)
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/vkiragi/Medi.git
+   cd Medi
+   ```
 
-1. Open Xcode
-2. Select "Create New Project"
-3. Choose "App" under iOS
-4. Name the project "medi"
-5. Copy all files from `Sources/medi/` to your Xcode project
-6. Build and run on simulator or device
+2. **Open in Xcode**:
+   ```bash
+   open medi-xcode/medi.xcodeproj
+   ```
 
-### Option 2: Using Swift Package Manager
+3. **Build and Run**:
+   - Select an iPhone simulator
+   - Press `Cmd + R` or click the Play button
 
-1. Open the project folder in Terminal
-2. Run: `swift build`
-3. Open Package.swift in Xcode
+### Quick Setup Script
 
-## Project Structure
+Alternatively, use the provided setup script:
+```bash
+./open_medi.sh
+```
+
+## 🏗️ Project Structure
 
 ```
 medi-app/
-├── Sources/
+├── medi-xcode/
+│   └── medi.xcodeproj          # Main Xcode project
 │   └── medi/
-│       ├── MediApp.swift          # App entry point
 │       ├── Models/
-│       │   └── MeditationManager.swift  # Core meditation logic
-│       └── Views/
-│           ├── ContentView.swift   # Main tab view
-│           ├── MeditationView.swift # Meditation timer interface
-│           └── HistoryView.swift   # Session history
-├── Package.swift
-└── README.md
+│       │   ├── MeditationManager.swift    # Timer logic
+│       │   ├── AudioManager.swift         # Audio playback
+│       │   └── GuidedMeditation.swift     # Meditation data
+│       ├── Views/
+│       │   ├── MeditationView.swift       # Timer interface
+│       │   ├── GuidedMeditationListView.swift
+│       │   ├── GuidedMeditationPlayerView.swift
+│       │   └── HistoryView.swift          # Session history
+│       └── *.mp3                          # Guided meditation audio files
+├── README.md
+└── setup scripts
 ```
 
-## How to Use
+## 🎯 How to Use
 
-1. **Select Duration**: Choose your preferred meditation duration (5, 10, 15, or 20 minutes)
-2. **Start Meditation**: Tap the "Start" button to begin your session
-3. **Breathing Guide**: Follow the expanding and contracting circle for breathing rhythm
-4. **Pause/Resume**: Use the pause button if you need a break
-5. **View History**: Check the History tab to see your completed sessions and progress
+1. **Timer Meditation**:
+   - Select your preferred duration (5, 10, 15, or 20 minutes)
+   - Tap "Start" to begin
+   - Follow the breathing circle animation
+   - Use pause/resume as needed
 
-## Design Philosophy
+2. **Guided Meditation**:
+   - Browse available guided sessions
+   - Tap a session to open the player
+   - Press play to start the guided meditation
+   - Follow along with the breathing circle
+
+3. **Track Progress**:
+   - View your meditation history in the History tab
+   - See total sessions, minutes, and current streak
+   - All sessions are automatically saved
+
+## 🎨 Design Philosophy
 
 The app follows a minimalist design approach with:
-- Soft, calming color palette
+- Soft, calming color palette (purple/blue tones)
 - Smooth animations for better user experience
-- Clean typography
-- Intuitive navigation
+- Clean typography and intuitive navigation
+- Breathing circle that guides meditation rhythm
 
-## Future Enhancements
+## 🔧 Technical Details
 
-- Background sounds/music
-- Guided meditation sessions
-- Custom duration settings
-- Daily reminders
-- Export meditation data
-- Apple Health integration
+- **Architecture**: MVVM pattern with SwiftUI
+- **Audio**: AVFoundation for guided meditation playback
+- **Data Persistence**: UserDefaults for session history
+- **Animations**: SwiftUI animations for breathing guidance
+- **Navigation**: Tab-based interface with NavigationView
 
-## License
+## 🚧 Future Enhancements
 
-This project is available for personal use and learning purposes. 
+- [ ] Background sounds/ambient music
+- [ ] Custom duration settings
+- [ ] Daily meditation reminders
+- [ ] Apple Health integration
+- [ ] Export meditation data
+- [ ] More guided meditation categories
+- [ ] Dark mode support
+- [ ] Apple Watch companion app
+
+## 📄 License
+
+This project is available for personal use and learning purposes.
+
+## 🤝 Contributing
+
+Feel free to submit issues and enhancement requests!
+
+---
+
+**Happy meditating!** 🧘‍♀️✨ 
