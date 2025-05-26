@@ -6,10 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		F520D6E02DE4400500F1CACD /* FreeMindfulness3MinuteBreathing (1).mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F520D6DF2DE4400500F1CACD /* FreeMindfulness3MinuteBreathing (1).mp3 */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		F520D6A52DE43B2800F1CACD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -31,7 +27,6 @@
 		F520D6972DE43B2800F1CACD /* medi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = medi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F520D6A42DE43B2800F1CACD /* mediTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mediTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F520D6AE2DE43B2800F1CACD /* mediUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mediUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		F520D6DF2DE4400500F1CACD /* FreeMindfulness3MinuteBreathing (1).mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "FreeMindfulness3MinuteBreathing (1).mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -80,7 +75,6 @@
 		F520D68E2DE43B2800F1CACD = {
 			isa = PBXGroup;
 			children = (
-				F520D6DF2DE4400500F1CACD /* FreeMindfulness3MinuteBreathing (1).mp3 */,
 				F520D6992DE43B2800F1CACD /* medi */,
 				F520D6A72DE43B2800F1CACD /* mediTests */,
 				F520D6B12DE43B2800F1CACD /* mediUITests */,
@@ -218,7 +212,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F520D6E02DE4400500F1CACD /* FreeMindfulness3MinuteBreathing (1).mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,6 +395,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = medi/medi.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2YT37YL2GZ;
@@ -430,6 +424,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = medi/medi.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2YT37YL2GZ;
