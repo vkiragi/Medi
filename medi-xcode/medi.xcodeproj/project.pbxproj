@@ -1,0 +1,570 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F520D6E02DE4400500F1CACD /* FreeMindfulness3MinuteBreathing (1).mp3 in Resources */ = {isa = PBXBuildFile; fileRef = F520D6DF2DE4400500F1CACD /* FreeMindfulness3MinuteBreathing (1).mp3 */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F520D6A52DE43B2800F1CACD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F520D68F2DE43B2800F1CACD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F520D6962DE43B2800F1CACD;
+			remoteInfo = medi;
+		};
+		F520D6AF2DE43B2800F1CACD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F520D68F2DE43B2800F1CACD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F520D6962DE43B2800F1CACD;
+			remoteInfo = medi;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		F520D6972DE43B2800F1CACD /* medi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = medi.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F520D6A42DE43B2800F1CACD /* mediTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mediTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F520D6AE2DE43B2800F1CACD /* mediUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mediUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F520D6DF2DE4400500F1CACD /* FreeMindfulness3MinuteBreathing (1).mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "FreeMindfulness3MinuteBreathing (1).mp3"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		F520D6992DE43B2800F1CACD /* medi */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = medi;
+			sourceTree = "<group>";
+		};
+		F520D6A72DE43B2800F1CACD /* mediTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = mediTests;
+			sourceTree = "<group>";
+		};
+		F520D6B12DE43B2800F1CACD /* mediUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = mediUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F520D6942DE43B2800F1CACD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F520D6A12DE43B2800F1CACD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F520D6AB2DE43B2800F1CACD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F520D68E2DE43B2800F1CACD = {
+			isa = PBXGroup;
+			children = (
+				F520D6DF2DE4400500F1CACD /* FreeMindfulness3MinuteBreathing (1).mp3 */,
+				F520D6992DE43B2800F1CACD /* medi */,
+				F520D6A72DE43B2800F1CACD /* mediTests */,
+				F520D6B12DE43B2800F1CACD /* mediUITests */,
+				F520D6982DE43B2800F1CACD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F520D6982DE43B2800F1CACD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F520D6972DE43B2800F1CACD /* medi.app */,
+				F520D6A42DE43B2800F1CACD /* mediTests.xctest */,
+				F520D6AE2DE43B2800F1CACD /* mediUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F520D6962DE43B2800F1CACD /* medi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F520D6B82DE43B2800F1CACD /* Build configuration list for PBXNativeTarget "medi" */;
+			buildPhases = (
+				F520D6932DE43B2800F1CACD /* Sources */,
+				F520D6942DE43B2800F1CACD /* Frameworks */,
+				F520D6952DE43B2800F1CACD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F520D6992DE43B2800F1CACD /* medi */,
+			);
+			name = medi;
+			packageProductDependencies = (
+			);
+			productName = medi;
+			productReference = F520D6972DE43B2800F1CACD /* medi.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F520D6A32DE43B2800F1CACD /* mediTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F520D6BB2DE43B2800F1CACD /* Build configuration list for PBXNativeTarget "mediTests" */;
+			buildPhases = (
+				F520D6A02DE43B2800F1CACD /* Sources */,
+				F520D6A12DE43B2800F1CACD /* Frameworks */,
+				F520D6A22DE43B2800F1CACD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F520D6A62DE43B2800F1CACD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F520D6A72DE43B2800F1CACD /* mediTests */,
+			);
+			name = mediTests;
+			packageProductDependencies = (
+			);
+			productName = mediTests;
+			productReference = F520D6A42DE43B2800F1CACD /* mediTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F520D6AD2DE43B2800F1CACD /* mediUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F520D6BE2DE43B2800F1CACD /* Build configuration list for PBXNativeTarget "mediUITests" */;
+			buildPhases = (
+				F520D6AA2DE43B2800F1CACD /* Sources */,
+				F520D6AB2DE43B2800F1CACD /* Frameworks */,
+				F520D6AC2DE43B2800F1CACD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F520D6B02DE43B2800F1CACD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F520D6B12DE43B2800F1CACD /* mediUITests */,
+			);
+			name = mediUITests;
+			packageProductDependencies = (
+			);
+			productName = mediUITests;
+			productReference = F520D6AE2DE43B2800F1CACD /* mediUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F520D68F2DE43B2800F1CACD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1630;
+				LastUpgradeCheck = 1630;
+				TargetAttributes = {
+					F520D6962DE43B2800F1CACD = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					F520D6A32DE43B2800F1CACD = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = F520D6962DE43B2800F1CACD;
+					};
+					F520D6AD2DE43B2800F1CACD = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = F520D6962DE43B2800F1CACD;
+					};
+				};
+			};
+			buildConfigurationList = F520D6922DE43B2800F1CACD /* Build configuration list for PBXProject "medi" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F520D68E2DE43B2800F1CACD;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = F520D6982DE43B2800F1CACD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F520D6962DE43B2800F1CACD /* medi */,
+				F520D6A32DE43B2800F1CACD /* mediTests */,
+				F520D6AD2DE43B2800F1CACD /* mediUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F520D6952DE43B2800F1CACD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F520D6E02DE4400500F1CACD /* FreeMindfulness3MinuteBreathing (1).mp3 in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F520D6A22DE43B2800F1CACD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F520D6AC2DE43B2800F1CACD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F520D6932DE43B2800F1CACD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F520D6A02DE43B2800F1CACD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F520D6AA2DE43B2800F1CACD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F520D6A62DE43B2800F1CACD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F520D6962DE43B2800F1CACD /* medi */;
+			targetProxy = F520D6A52DE43B2800F1CACD /* PBXContainerItemProxy */;
+		};
+		F520D6B02DE43B2800F1CACD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F520D6962DE43B2800F1CACD /* medi */;
+			targetProxy = F520D6AF2DE43B2800F1CACD /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F520D6B62DE43B2800F1CACD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 2YT37YL2GZ;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F520D6B72DE43B2800F1CACD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 2YT37YL2GZ;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F520D6B92DE43B2800F1CACD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2YT37YL2GZ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.medi.medi;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F520D6BA2DE43B2800F1CACD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2YT37YL2GZ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.medi.medi;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		F520D6BC2DE43B2800F1CACD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2YT37YL2GZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.medi.mediTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/medi.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/medi";
+			};
+			name = Debug;
+		};
+		F520D6BD2DE43B2800F1CACD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2YT37YL2GZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.medi.mediTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/medi.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/medi";
+			};
+			name = Release;
+		};
+		F520D6BF2DE43B2800F1CACD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2YT37YL2GZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.medi.mediUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = medi;
+			};
+			name = Debug;
+		};
+		F520D6C02DE43B2800F1CACD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2YT37YL2GZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.medi.mediUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = medi;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F520D6922DE43B2800F1CACD /* Build configuration list for PBXProject "medi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F520D6B62DE43B2800F1CACD /* Debug */,
+				F520D6B72DE43B2800F1CACD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F520D6B82DE43B2800F1CACD /* Build configuration list for PBXNativeTarget "medi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F520D6B92DE43B2800F1CACD /* Debug */,
+				F520D6BA2DE43B2800F1CACD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F520D6BB2DE43B2800F1CACD /* Build configuration list for PBXNativeTarget "mediTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F520D6BC2DE43B2800F1CACD /* Debug */,
+				F520D6BD2DE43B2800F1CACD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F520D6BE2DE43B2800F1CACD /* Build configuration list for PBXNativeTarget "mediUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F520D6BF2DE43B2800F1CACD /* Debug */,
+				F520D6C02DE43B2800F1CACD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F520D68F2DE43B2800F1CACD /* Project object */;
+}
