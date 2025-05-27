@@ -1,7 +1,47 @@
 import SwiftUI
 
 struct GuidedMeditationListView: View {
-    @State private var selectedMeditation: GuidedMeditation?
+    // Sample guided meditations
+    let guidedMeditations = [
+        GuidedMeditation(
+            id: "1",
+            title: "Morning Calm",
+            description: "Start your day with a peaceful meditation",
+            duration: 10,
+            imageColor: Color(red: 0.4, green: 0.7, blue: 0.9)
+        ),
+        GuidedMeditation(
+            id: "2",
+            title: "Stress Relief",
+            description: "Release tension and find your center",
+            duration: 15,
+            imageColor: Color(red: 0.8, green: 0.6, blue: 0.9)
+        ),
+        GuidedMeditation(
+            id: "3",
+            title: "Deep Sleep",
+            description: "Prepare your mind and body for restful sleep",
+            duration: 20,
+            imageColor: Color(red: 0.4, green: 0.5, blue: 0.8)
+        ),
+        GuidedMeditation(
+            id: "4",
+            title: "Focus & Clarity",
+            description: "Sharpen your mind for better concentration",
+            duration: 12,
+            imageColor: Color(red: 0.5, green: 0.8, blue: 0.7)
+        ),
+        GuidedMeditation(
+            id: "5",
+            title: "Gratitude Practice",
+            description: "Cultivate appreciation and positivity",
+            duration: 8,
+            imageColor: Color(red: 0.9, green: 0.7, blue: 0.5)
+        )
+    ]
+    
+    @State private var selectedCategory = "All"
+    let categories = ["All", "Popular", "Sleep", "Stress", "Focus"]
     
     var body: some View {
         NavigationView {
@@ -10,86 +50,100 @@ struct GuidedMeditationListView: View {
                 Color(red: 0.95, green: 0.95, blue: 1.0)
                     .ignoresSafeArea()
                 
-                ScrollView {
-                    VStack(spacing: 15) {
-                        // Header
-                        VStack(spacing: 10) {
-                            Text("Guided Meditations")
-                                .font(.system(size: 32, weight: .thin, design: .rounded))
-                                .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
-                            
-                            Text("Choose your practice")
-                                .font(.system(size: 16, weight: .light))
-                                .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
-                        }
-                        .padding(.top, 20)
-                        .padding(.bottom, 10)
-                        
-                        // Meditation cards
-                        ForEach(GuidedMeditation.meditations) { meditation in
-                            NavigationLink(destination: GuidedMeditationPlayerView(meditation: meditation)) {
-                                MeditationCard(meditation: meditation)
+                VStack(spacing: 0) {
+                    // Category selector
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 15) {
+                            ForEach(categories, id: \.self) { category in
+                                Button(action: {
+                                    selectedCategory = category
+                                }) {
+                                    Text(category)
+                                        .font(.system(size: 16, weight: selectedCategory == category ? .medium : .regular))
+                                        .foregroundColor(selectedCategory == category ? .white : Color(red: 0.5, green: 0.5, blue: 0.6))
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 8)
+                                        .background(selectedCategory == category ? Color(red: 0.6, green: 0.7, blue: 0.9) : Color.clear)
+                                        .cornerRadius(20)
+                                }
                             }
-                            .buttonStyle(PlainButtonStyle())
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 100)
+                    
+                    // Meditations list
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            ForEach(guidedMeditations) { meditation in
+                                NavigationLink(destination: GuidedMeditationPlayerView(meditation: meditation)) {
+                                    GuidedMeditationCard(meditation: meditation)
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                        }
+                        .padding(.vertical, 20)
+                    }
                 }
             }
-            .navigationBarHidden(true)
+            .navigationTitle("Guided")
+            .navigationBarTitleDisplayMode(.large)
         }
     }
 }
 
-struct MeditationCard: View {
+struct GuidedMeditationCard: View {
     let meditation: GuidedMeditation
     
     var body: some View {
         HStack(spacing: 15) {
-            // Icon
+            // Meditation image
             ZStack {
-                Circle()
-                    .fill(Color(red: 0.6, green: 0.7, blue: 0.9).opacity(0.2))
-                    .frame(width: 60, height: 60)
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(meditation.imageColor)
+                    .frame(width: 80, height: 80)
                 
-                Image(systemName: "waveform.circle.fill")
-                    .font(.system(size: 28))
-                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                Image(systemName: "waveform")
+                    .font(.system(size: 30))
+                    .foregroundColor(.white)
             }
             
-            // Content
+            // Meditation details
             VStack(alignment: .leading, spacing: 5) {
-                HStack {
-                    Text(meditation.title)
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
-                    
-                    Spacer()
-                    
-                    Text(meditation.duration)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 4)
-                        .background(Color(red: 0.6, green: 0.7, blue: 0.9).opacity(0.1))
-                        .cornerRadius(12)
-                }
+                Text(meditation.title)
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
                 
                 Text(meditation.description)
                     .font(.system(size: 14, weight: .light))
                     .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
-                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+                
+                Text("\(meditation.duration) min")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                    .padding(.top, 2)
             }
             
-            // Arrow
-            Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.7))
+            Spacer()
+            
+            // Play button
+            Image(systemName: "play.circle.fill")
+                .font(.system(size: 30))
+                .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                .padding(.trailing, 5)
         }
-        .padding(20)
+        .padding(15)
         .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        .cornerRadius(15)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
+}
+
+struct GuidedMeditation: Identifiable {
+    let id: String
+    let title: String
+    let description: String
+    let duration: Int
+    let imageColor: Color
 } 

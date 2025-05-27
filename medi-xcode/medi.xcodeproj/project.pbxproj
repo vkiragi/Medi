@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F520D72C2DE5046900F1CACD /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = F520D72B2DE5046900F1CACD /* Auth */; };
+		F520D72E2DE5046900F1CACD /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = F520D72D2DE5046900F1CACD /* Functions */; };
+		F520D7302DE5046900F1CACD /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = F520D72F2DE5046900F1CACD /* PostgREST */; };
+		F520D7322DE5046900F1CACD /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = F520D7312DE5046900F1CACD /* Realtime */; };
+		F520D7342DE5046900F1CACD /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = F520D7332DE5046900F1CACD /* Storage */; };
+		F520D7362DE5046900F1CACD /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = F520D7352DE5046900F1CACD /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		F520D6A52DE43B2800F1CACD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +61,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F520D7302DE5046900F1CACD /* PostgREST in Frameworks */,
+				F520D72E2DE5046900F1CACD /* Functions in Frameworks */,
+				F520D7362DE5046900F1CACD /* Supabase in Frameworks */,
+				F520D72C2DE5046900F1CACD /* Auth in Frameworks */,
+				F520D7342DE5046900F1CACD /* Storage in Frameworks */,
+				F520D7322DE5046900F1CACD /* Realtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +127,12 @@
 			);
 			name = medi;
 			packageProductDependencies = (
+				F520D72B2DE5046900F1CACD /* Auth */,
+				F520D72D2DE5046900F1CACD /* Functions */,
+				F520D72F2DE5046900F1CACD /* PostgREST */,
+				F520D7312DE5046900F1CACD /* Realtime */,
+				F520D7332DE5046900F1CACD /* Storage */,
+				F520D7352DE5046900F1CACD /* Supabase */,
 			);
 			productName = medi;
 			productReference = F520D6972DE43B2800F1CACD /* medi.app */;
@@ -195,6 +216,9 @@
 			);
 			mainGroup = F520D68E2DE43B2800F1CACD;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F520D72A2DE5046900F1CACD /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F520D6982DE43B2800F1CACD /* Products */;
 			projectDirPath = "";
@@ -413,6 +437,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.medi.medi;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -442,6 +470,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.medi.medi;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -560,6 +592,50 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F520D72A2DE5046900F1CACD /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F520D72B2DE5046900F1CACD /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F520D72A2DE5046900F1CACD /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		F520D72D2DE5046900F1CACD /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F520D72A2DE5046900F1CACD /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		F520D72F2DE5046900F1CACD /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F520D72A2DE5046900F1CACD /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		F520D7312DE5046900F1CACD /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F520D72A2DE5046900F1CACD /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		F520D7332DE5046900F1CACD /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F520D72A2DE5046900F1CACD /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		F520D7352DE5046900F1CACD /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F520D72A2DE5046900F1CACD /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F520D68F2DE43B2800F1CACD /* Project object */;
 }

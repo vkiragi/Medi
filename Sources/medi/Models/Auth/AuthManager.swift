@@ -1,23 +1,24 @@
 import Foundation
 import AuthenticationServices
 import SwiftUI
+import Supabase
 
-class AuthManager: NSObject, ObservableObject {
-    @Published var isSignedIn = false
-    @Published var userID: String?
-    @Published var userEmail: String?
-    @Published var userName: String?
-    @Published var showingSignIn = false
-    @Published var errorMessage: String?
+public class AuthManager: NSObject, ObservableObject {
+    @Published public var isSignedIn = false
+    @Published public var userID: String?
+    @Published public var userEmail: String?
+    @Published public var userName: String?
+    @Published public var showingSignIn = false
+    @Published public var errorMessage: String?
     
     private let supabase = SupabaseManager.shared
     
-    override init() {
+    public override init() {
         super.init()
         checkAuthStatus()
     }
     
-    func signInWithApple() {
+    public func signInWithApple() {
         let request = ASAuthorizationAppleIDProvider().createRequest()
         request.requestedScopes = [.fullName, .email]
         
@@ -27,7 +28,7 @@ class AuthManager: NSObject, ObservableObject {
         authorizationController.performRequests()
     }
     
-    func signOut() {
+    public func signOut() {
         userID = nil
         userEmail = nil
         userName = nil
@@ -40,7 +41,7 @@ class AuthManager: NSObject, ObservableObject {
         UserDefaults.standard.removeObject(forKey: "user_name")
     }
     
-    func continueWithoutSignIn() {
+    public func continueWithoutSignIn() {
         // Allow anonymous usage - user can still use the app
         isSignedIn = true
         userID = "anonymous_\(UUID().uuidString)"
@@ -67,7 +68,7 @@ class AuthManager: NSObject, ObservableObject {
     // MARK: - Supabase Integration
     
     @MainActor
-    func syncProfileWithSupabase() async {
+    public func syncProfileWithSupabase() async {
         guard let userId = userID, !userId.hasPrefix("anonymous_") else { return }
         
         await supabase.getOrCreateProfile(
@@ -79,7 +80,7 @@ class AuthManager: NSObject, ObservableObject {
 }
 
 extension AuthManager: ASAuthorizationControllerDelegate {
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+    public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
             userID = appleIDCredential.user
             userEmail = appleIDCredential.email
@@ -103,7 +104,7 @@ extension AuthManager: ASAuthorizationControllerDelegate {
         }
     }
     
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+    public func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         print("Apple Sign-In failed: \(error.localizedDescription)")
         
         // Handle specific error cases
@@ -128,8 +129,10 @@ extension AuthManager: ASAuthorizationControllerDelegate {
     }
 }
 
+// MARK: - ASAuthorizationControllerPresentationContextProviding
+
 extension AuthManager: ASAuthorizationControllerPresentationContextProviding {
-    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+    public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         let scenes = UIApplication.shared.connectedScenes
         let windowScene = scenes.first as? UIWindowScene
         let window = windowScene?.windows.first ?? UIWindow()

@@ -7,6 +7,8 @@ class AudioManager: ObservableObject {
     @Published var currentTime: TimeInterval = 0
     @Published var duration: TimeInterval = 0
     @Published var audioTitle = "Guided Meditation"
+    @Published var audioLoaded = false
+    @Published var errorMessage: String?
     
     private var audioPlayer: AVAudioPlayer?
     private var timer: AnyCancellable?
@@ -21,12 +23,15 @@ class AudioManager: ObservableObject {
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
             print("Failed to setup audio session: \(error)")
+            errorMessage = "Could not set up audio session"
         }
     }
     
     func loadAudio(fileName: String, fileExtension: String = "mp3") {
         guard let url = Bundle.main.url(forResource: fileName, withExtension: fileExtension) else {
             print("Audio file not found: \(fileName).\(fileExtension)")
+            errorMessage = "Audio file not found: \(fileName).\(fileExtension)"
+            audioLoaded = false
             return
         }
         
@@ -34,13 +39,22 @@ class AudioManager: ObservableObject {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.prepareToPlay()
             duration = audioPlayer?.duration ?? 0
+            audioLoaded = true
+            errorMessage = nil
         } catch {
             print("Failed to load audio: \(error)")
+            errorMessage = "Failed to load audio: \(error.localizedDescription)"
+            audioLoaded = false
         }
     }
     
     func play() {
-        audioPlayer?.play()
+        guard audioLoaded, let player = audioPlayer else {
+            errorMessage = "No audio loaded"
+            return
+        }
+        
+        player.play()
         isPlaying = true
         startTimer()
     }

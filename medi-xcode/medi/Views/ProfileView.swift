@@ -1,4 +1,5 @@
 import SwiftUI
+import medi
 
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
@@ -78,29 +79,35 @@ struct ProfileView: View {
                                 .padding(.horizontal, 20)
                             
                             VStack(spacing: 0) {
-                                SettingsRow(
-                                    icon: "bell.fill",
-                                    title: "Notifications",
-                                    subtitle: "Daily meditation reminders"
-                                )
+                                NavigationLink(destination: Text("Notifications Settings")) {
+                                    SettingsRow(
+                                        icon: "bell.fill",
+                                        title: "Notifications",
+                                        subtitle: "Daily meditation reminders"
+                                    )
+                                }
                                 
                                 Divider()
                                     .padding(.leading, 60)
                                 
-                                SettingsRow(
-                                    icon: "icloud.fill",
-                                    title: "Data Sync",
-                                    subtitle: authManager.userID?.starts(with: "anonymous") == true ? "Sign in to sync data" : "Synced with Apple ID"
-                                )
+                                NavigationLink(destination: SyncSettingsView()) {
+                                    SettingsRow(
+                                        icon: "icloud.fill",
+                                        title: "Data Sync",
+                                        subtitle: authManager.userID?.starts(with: "anonymous") == true ? "Sign in to sync data" : "Synced with Apple ID"
+                                    )
+                                }
                                 
                                 Divider()
                                     .padding(.leading, 60)
                                 
-                                SettingsRow(
-                                    icon: "questionmark.circle.fill",
-                                    title: "Help & Support",
-                                    subtitle: "Get help with the app"
-                                )
+                                NavigationLink(destination: Text("Help & Support")) {
+                                    SettingsRow(
+                                        icon: "questionmark.circle.fill",
+                                        title: "Help & Support",
+                                        subtitle: "Get help with the app"
+                                    )
+                                }
                             }
                             .background(Color.white)
                             .cornerRadius(15)

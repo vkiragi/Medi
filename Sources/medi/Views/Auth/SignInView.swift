@@ -1,10 +1,10 @@
 import SwiftUI
 import AuthenticationServices
 
-struct SignInView: View {
+public struct SignInView: View {
     @EnvironmentObject var authManager: AuthManager
     
-    var body: some View {
+    public var body: some View {
         ZStack {
             // Background gradient
             LinearGradient(

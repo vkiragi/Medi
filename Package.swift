@@ -6,7 +6,8 @@ import PackageDescription
 let package = Package(
     name: "medi",
     platforms: [
-        .iOS(.v16)
+        .iOS(.v16),
+        .macOS(.v10_15)
     ],
     products: [
         .library(
@@ -14,13 +15,13 @@ let package = Package(
             targets: ["medi"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/supabase-community/supabase-swift.git", from: "0.3.0"),
     ],
     targets: [
         .target(
             name: "medi",
-            dependencies: []),
-        .testTarget(
-            name: "mediTests",
-            dependencies: ["medi"]),
+            dependencies: [
+                .product(name: "Supabase", package: "supabase-swift"),
+            ]),
     ]
 ) 

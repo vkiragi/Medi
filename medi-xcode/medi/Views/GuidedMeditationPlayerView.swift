@@ -44,69 +44,84 @@ struct GuidedMeditationPlayerView: View {
                         .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
                         .multilineTextAlignment(.center)
                     
-                    Text(meditation.duration)
+                    Text("\(meditation.duration) minutes")
                         .font(.system(size: 18, weight: .light))
                         .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
                 }
                 
                 Spacer()
                 
-                // Breathing Circle
-                ZStack {
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                gradient: Gradient(colors: [
-                                    Color(red: 0.6, green: 0.7, blue: 0.9).opacity(0.3),
-                                    Color(red: 0.7, green: 0.8, blue: 1.0).opacity(0.1)
-                                ]),
-                                center: .center,
-                                startRadius: 5,
-                                endRadius: 150
-                            )
-                        )
-                        .frame(width: 250, height: 250)
-                        .scaleEffect(breathingScale)
-                        .animation(
-                            audioManager.isPlaying ?
-                            Animation.easeInOut(duration: 4).repeatForever(autoreverses: true) :
-                            .default,
-                            value: breathingScale
-                        )
-                    
+                // Error Message (if any)
+                if let errorMessage = audioManager.errorMessage {
                     VStack(spacing: 10) {
-                        Image(systemName: audioManager.isPlaying ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
+                        Image(systemName: "exclamationmark.triangle.fill")
                             .font(.system(size: 48))
-                            .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                            .foregroundColor(Color.orange)
                         
-                        Text(audioManager.isPlaying ? "Playing" : "Ready")
-                            .font(.system(size: 18, weight: .light))
+                        Text(errorMessage)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(Color(red: 0.7, green: 0.3, blue: 0.3))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                        
+                        Text("Please add the audio files as described in the Resources/README.md file")
+                            .font(.system(size: 14, weight: .light))
                             .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
                     }
-                }
-                .onAppear {
-                    audioManager.loadAudio(fileName: meditation.fileName)
-                }
-                .onChange(of: audioManager.isPlaying) { isPlaying in
-                    breathingScale = isPlaying ? 1.3 : 1.0
-                }
-                
-                // Progress bar
-                if audioManager.duration > 0 {
-                    VStack(spacing: 10) {
-                        ProgressView(value: audioManager.currentTime, total: audioManager.duration)
-                            .progressViewStyle(LinearProgressViewStyle(tint: Color(red: 0.6, green: 0.7, blue: 0.9)))
-                            .frame(height: 4)
+                } else {
+                    // Breathing Circle
+                    ZStack {
+                        Circle()
+                            .fill(
+                                RadialGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(red: 0.6, green: 0.7, blue: 0.9).opacity(0.3),
+                                        Color(red: 0.7, green: 0.8, blue: 1.0).opacity(0.1)
+                                    ]),
+                                    center: .center,
+                                    startRadius: 5,
+                                    endRadius: 150
+                                )
+                            )
+                            .frame(width: 250, height: 250)
+                            .scaleEffect(breathingScale)
+                            .animation(
+                                audioManager.isPlaying ?
+                                Animation.easeInOut(duration: 4).repeatForever(autoreverses: true) :
+                                .default,
+                                value: breathingScale
+                            )
                         
-                        HStack {
-                            Text(timeString(from: audioManager.currentTime))
-                            Spacer()
-                            Text(timeString(from: audioManager.duration))
+                        VStack(spacing: 10) {
+                            Image(systemName: audioManager.isPlaying ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
+                                .font(.system(size: 48))
+                                .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                            
+                            Text(audioManager.isPlaying ? "Playing" : "Ready")
+                                .font(.system(size: 18, weight: .light))
+                                .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
                         }
-                        .font(.system(size: 14, weight: .light))
-                        .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
                     }
-                    .padding(.horizontal, 40)
+                    
+                    // Progress bar
+                    if audioManager.duration > 0 {
+                        VStack(spacing: 10) {
+                            ProgressView(value: audioManager.currentTime, total: audioManager.duration)
+                                .progressViewStyle(LinearProgressViewStyle(tint: Color(red: 0.6, green: 0.7, blue: 0.9)))
+                                .frame(height: 4)
+                            
+                            HStack {
+                                Text(timeString(from: audioManager.currentTime))
+                                Spacer()
+                                Text(timeString(from: audioManager.duration))
+                            }
+                            .font(.system(size: 14, weight: .light))
+                            .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                        }
+                        .padding(.horizontal, 40)
+                    }
                 }
                 
                 Spacer()
@@ -140,11 +155,20 @@ struct GuidedMeditationPlayerView: View {
                             .background(Color(red: 0.6, green: 0.7, blue: 0.9))
                             .clipShape(Circle())
                     }
+                    .disabled(audioManager.errorMessage != nil)
+                    .opacity(audioManager.errorMessage != nil ? 0.5 : 1)
                 }
                 .padding(.bottom, 100)
             }
         }
         .navigationBarHidden(true)
+        .onAppear {
+            // Using the ID as the filename for simplicity
+            audioManager.loadAudio(fileName: "meditation_\(meditation.id)")
+        }
+        .onChange(of: audioManager.isPlaying) { isPlaying in
+            breathingScale = isPlaying ? 1.3 : 1.0
+        }
     }
     
     private func timeString(from timeInterval: TimeInterval) -> String {

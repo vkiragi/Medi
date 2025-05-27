@@ -1,12 +1,13 @@
 import SwiftUI
-import medi
 
-struct ContentView_Main: View {
+public struct ContentView_Main: View {
     @EnvironmentObject var meditationManager: MeditationManager
     @EnvironmentObject var authManager: AuthManager
     @State private var selectedTab = 0
     
-    var body: some View {
+    public init() {}
+    
+    public var body: some View {
         TabView(selection: $selectedTab) {
             MeditationView()
                 .tabItem {
@@ -35,3 +36,28 @@ struct ContentView_Main: View {
         .accentColor(.purple)
     }
 }
+
+// Placeholder views (you already have these implemented in your Xcode project)
+public struct MeditationView: View {
+    public var body: some View {
+        Text("Meditation View")
+    }
+}
+
+public struct GuidedMeditationListView: View {
+    public var body: some View {
+        Text("Guided Meditation View")
+    }
+}
+
+public struct HistoryView: View {
+    public var body: some View {
+        Text("History View")
+    }
+}
+
+public struct ProfileView: View {
+    public var body: some View {
+        Text("Profile View")
+    }
+} 
