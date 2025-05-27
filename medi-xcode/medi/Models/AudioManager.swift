@@ -140,4 +140,3 @@ class AudioManager: ObservableObject {
         timer?.cancel()
     }
 } 
-} 
