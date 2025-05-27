@@ -157,8 +157,8 @@ struct GuidedMeditationPlayerView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
-            // Using the ID as the filename for simplicity
-            audioManager.loadAudio(fileName: "meditation_\(meditation.id)")
+            // Load the audio file using the audioFileName property
+            audioManager.loadAudio(fileName: meditation.audioFileName)
         }
         .onChange(of: audioManager.isPlaying) { isPlaying in
             breathingScale = isPlaying ? 1.3 : 1.0

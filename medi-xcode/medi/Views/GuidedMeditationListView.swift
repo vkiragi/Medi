@@ -1,42 +1,47 @@
 import SwiftUI
 
 struct GuidedMeditationListView: View {
-    // Sample guided meditations
+    // Sample guided meditations using existing audio files
     let guidedMeditations = [
         GuidedMeditation(
             id: "1",
             title: "Morning Calm",
             description: "Start your day with a peaceful meditation",
-            duration: 10,
-            imageColor: Color(red: 0.4, green: 0.7, blue: 0.9)
+            duration: 3,
+            imageColor: Color(red: 0.4, green: 0.7, blue: 0.9),
+            audioFileName: "FreeMindfulness3MinuteBreathing"
         ),
         GuidedMeditation(
             id: "2",
             title: "Stress Relief",
             description: "Release tension and find your center",
-            duration: 15,
-            imageColor: Color(red: 0.8, green: 0.6, blue: 0.9)
+            duration: 5,
+            imageColor: Color(red: 0.8, green: 0.6, blue: 0.9),
+            audioFileName: "MARC5MinuteBreathing"
         ),
         GuidedMeditation(
             id: "3",
             title: "Deep Sleep",
             description: "Prepare your mind and body for restful sleep",
-            duration: 20,
-            imageColor: Color(red: 0.4, green: 0.5, blue: 0.8)
+            duration: 5,
+            imageColor: Color(red: 0.4, green: 0.5, blue: 0.8),
+            audioFileName: "LifeHappens5MinuteBreathing"
         ),
         GuidedMeditation(
             id: "4",
             title: "Focus & Clarity",
             description: "Sharpen your mind for better concentration",
-            duration: 12,
-            imageColor: Color(red: 0.5, green: 0.8, blue: 0.7)
+            duration: 6,
+            imageColor: Color(red: 0.5, green: 0.8, blue: 0.7),
+            audioFileName: "StillMind6MinuteBreathAwareness"
         ),
         GuidedMeditation(
             id: "5",
             title: "Gratitude Practice",
             description: "Cultivate appreciation and positivity",
-            duration: 8,
-            imageColor: Color(red: 0.9, green: 0.7, blue: 0.5)
+            duration: 10,
+            imageColor: Color(red: 0.9, green: 0.7, blue: 0.5),
+            audioFileName: "FreeMindfulness10MinuteBreathing"
         )
     ]
     
@@ -146,4 +151,5 @@ struct GuidedMeditation: Identifiable {
     let description: String
     let duration: Int
     let imageColor: Color
+    let audioFileName: String
 } 
