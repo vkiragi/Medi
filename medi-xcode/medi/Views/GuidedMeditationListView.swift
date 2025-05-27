@@ -9,7 +9,7 @@ struct GuidedMeditationListView: View {
             description: "Start your day with a peaceful meditation",
             duration: 3,
             imageColor: Color(red: 0.4, green: 0.7, blue: 0.9),
-            audioFileName: "FreeMindfulness3MinuteBreathing"
+            audioFileName: "breathing_meditation"
         ),
         GuidedMeditation(
             id: "2",
@@ -17,7 +17,7 @@ struct GuidedMeditationListView: View {
             description: "Release tension and find your center",
             duration: 5,
             imageColor: Color(red: 0.8, green: 0.6, blue: 0.9),
-            audioFileName: "MARC5MinuteBreathing"
+            audioFileName: "meditation_5min_marc"
         ),
         GuidedMeditation(
             id: "3",
@@ -25,7 +25,7 @@ struct GuidedMeditationListView: View {
             description: "Prepare your mind and body for restful sleep",
             duration: 5,
             imageColor: Color(red: 0.4, green: 0.5, blue: 0.8),
-            audioFileName: "LifeHappens5MinuteBreathing"
+            audioFileName: "meditation_5min_life_happens"
         ),
         GuidedMeditation(
             id: "4",
@@ -33,7 +33,7 @@ struct GuidedMeditationListView: View {
             description: "Sharpen your mind for better concentration",
             duration: 6,
             imageColor: Color(red: 0.5, green: 0.8, blue: 0.7),
-            audioFileName: "StillMind6MinuteBreathAwareness"
+            audioFileName: "meditation_6min_stillmind"
         ),
         GuidedMeditation(
             id: "5",
@@ -41,7 +41,7 @@ struct GuidedMeditationListView: View {
             description: "Cultivate appreciation and positivity",
             duration: 10,
             imageColor: Color(red: 0.9, green: 0.7, blue: 0.5),
-            audioFileName: "FreeMindfulness10MinuteBreathing"
+            audioFileName: "meditation_10min_breathing"
         )
     ]
     

@@ -30,38 +30,53 @@ class AudioManager: ObservableObject {
     func loadAudio(fileName: String, fileExtension: String = "mp3") {
         // Clear any previous audio
         audioPlayer = nil
+        errorMessage = nil
         
-        // Try locations in order of preference
-        let locations = ["Audio/", ""]
+        print("Attempting to load audio file: \(fileName).\(fileExtension)")
         
-        var foundURL: URL?
-        
-        // Search for the audio file
-        for location in locations {
-            if let url = Bundle.main.url(forResource: "\(location)\(fileName)", withExtension: fileExtension) {
-                foundURL = url
-                break
-            }
-        }
-        
-        // Handle result
-        guard let url = foundURL else {
-            print("Audio file not found: \(fileName)")
-            #if DEBUG
-            errorMessage = "Audio file not found: \(fileName).\(fileExtension)"
-            #else
-            errorMessage = "This meditation is not available right now."
-            #endif
-            audioLoaded = false
+        // First try directly in the main bundle
+        if let url = Bundle.main.url(forResource: fileName, withExtension: fileExtension) {
+            loadAudioFromURL(url)
             return
         }
         
+        // Check in various project locations if not found
+        let locations = ["", "Resources/", "Resources/Audio/"]
+        for location in locations {
+            if let url = Bundle.main.url(forResource: "\(location)\(fileName)", withExtension: fileExtension) {
+                print("Found audio file at: \(location)\(fileName).\(fileExtension)")
+                loadAudioFromURL(url)
+                return
+            }
+        }
+        
+        // If we reach here, no file was found
+        let errorMsg = "Audio file not found: \(fileName)"
+        print(errorMsg)
+        
+        // List available audio files for debugging
+        print("Available audio files in bundle:")
+        let bundles = Bundle.main.paths(forResourcesOfType: "mp3", inDirectory: nil)
+        for path in bundles {
+            print("- \(path)")
+        }
+        
+        #if DEBUG
+        errorMessage = "Audio file not found: \(fileName).\(fileExtension)"
+        #else
+        errorMessage = "This meditation is not available right now."
+        #endif
+        audioLoaded = false
+    }
+    
+    private func loadAudioFromURL(_ url: URL) {
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.prepareToPlay()
             duration = audioPlayer?.duration ?? 0
             audioLoaded = true
             errorMessage = nil
+            print("Successfully loaded audio: \(url.lastPathComponent)")
         } catch {
             print("Failed to load audio: \(error)")
             #if DEBUG
@@ -124,4 +139,5 @@ class AudioManager: ObservableObject {
     private func stopTimer() {
         timer?.cancel()
     }
+} 
 } 
