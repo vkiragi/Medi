@@ -28,13 +28,15 @@ class AudioManager: ObservableObject {
     }
     
     func loadAudio(fileName: String, fileExtension: String = "mp3") {
-        // Try different locations and extensions
-        let extensions = ["mp3", "m4a", "wav", "aiff"]
-        let locations = ["", "GuidedMeditations/", "Meditations/"]
+        // Clear any previous audio
+        audioPlayer = nil
+        
+        // Try locations in order of preference
+        let locations = ["Audio/", ""]
         
         var foundURL: URL?
         
-        // First try with the provided extension
+        // Search for the audio file
         for location in locations {
             if let url = Bundle.main.url(forResource: "\(location)\(fileName)", withExtension: fileExtension) {
                 foundURL = url
@@ -42,33 +44,14 @@ class AudioManager: ObservableObject {
             }
         }
         
-        // If not found, try different extensions
-        if foundURL == nil && fileExtension != "" {
-            for ext in extensions where ext != fileExtension {
-                for location in locations {
-                    if let url = Bundle.main.url(forResource: "\(location)\(fileName)", withExtension: ext) {
-                        foundURL = url
-                        break
-                    }
-                }
-                if foundURL != nil { break }
-            }
-        }
-        
-        // If still not found, try without extension (for files that might have extension in name)
-        if foundURL == nil {
-            for location in locations {
-                if let url = Bundle.main.url(forResource: "\(location)\(fileName)", withExtension: "") {
-                    foundURL = url
-                    break
-                }
-            }
-        }
-        
         // Handle result
         guard let url = foundURL else {
             print("Audio file not found: \(fileName)")
-            errorMessage = "Audio file not found. Please add meditation files to the app."
+            #if DEBUG
+            errorMessage = "Audio file not found: \(fileName).\(fileExtension)"
+            #else
+            errorMessage = "This meditation is not available right now."
+            #endif
             audioLoaded = false
             return
         }
@@ -79,17 +62,24 @@ class AudioManager: ObservableObject {
             duration = audioPlayer?.duration ?? 0
             audioLoaded = true
             errorMessage = nil
-            print("Successfully loaded audio: \(url.lastPathComponent)")
         } catch {
             print("Failed to load audio: \(error)")
+            #if DEBUG
             errorMessage = "Failed to load audio: \(error.localizedDescription)"
+            #else
+            errorMessage = "Unable to play this meditation. Please try again later."
+            #endif
             audioLoaded = false
         }
     }
     
     func play() {
         guard audioLoaded, let player = audioPlayer else {
+            #if DEBUG
             errorMessage = "No audio loaded"
+            #else
+            errorMessage = "This meditation is not available right now."
+            #endif
             return
         }
         

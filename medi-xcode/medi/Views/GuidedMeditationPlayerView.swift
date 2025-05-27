@@ -53,7 +53,7 @@ struct GuidedMeditationPlayerView: View {
                 
                 // Error Message (if any)
                 if let errorMessage = audioManager.errorMessage {
-                    VStack(spacing: 10) {
+                    VStack(spacing: 15) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.system(size: 48))
                             .foregroundColor(Color.orange)
@@ -63,26 +63,6 @@ struct GuidedMeditationPlayerView: View {
                             .foregroundColor(Color(red: 0.7, green: 0.3, blue: 0.3))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 40)
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Possible solutions:")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.5))
-                            
-                            Text("• Make sure audio files are added to the app bundle")
-                                .font(.system(size: 14))
-                                .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.5))
-                            
-                            Text("• Check that files are named properly (meditation_1.mp3, etc.)")
-                                .font(.system(size: 14))
-                                .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.5))
-                            
-                            Text("• See Resources/README.md for detailed instructions")
-                                .font(.system(size: 14))
-                                .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.5))
-                        }
-                        .padding(.top, 10)
-                        .padding(.horizontal, 40)
                     }
                 } else {
                     // Breathing Circle
