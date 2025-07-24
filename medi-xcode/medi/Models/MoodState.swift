@@ -57,13 +57,64 @@ struct MoodSession: Codable, Identifiable {
     let id: UUID
     let mood: MoodState
     let timestamp: Date
-    var selectedMeditation: String?
-    var postMoodRating: Int? // 1-5 rating of how they feel after meditation
+    var meditationSessionId: UUID?
+    var postMoodRating: Int? // 1-5 scale: how helpful was the meditation
     
-    init(mood: MoodState) {
+    // Enhanced fields for AI analysis
+    var moodIntensity: Int? // 1-10 scale
+    var stressLevel: Int? // 1-10 scale  
+    var energyLevel: Int? // 1-10 scale
+    var postMeditationMood: Int? // 1-10 scale
+    var meditationType: String?
+    var meditationDurationMinutes: Int?
+    var completedMeditation: Bool = false
+    var contextTags: [String] = []
+    var notes: String?
+    var meditationCompletedAt: Date?
+    
+    init(mood: MoodState, meditationSessionId: UUID? = nil) {
         self.id = UUID()
         self.mood = mood
         self.timestamp = Date()
+        self.meditationSessionId = meditationSessionId
+        self.postMoodRating = nil
+        
+        // Initialize enhanced fields
+        self.moodIntensity = nil
+        self.stressLevel = nil
+        self.energyLevel = nil
+        self.postMeditationMood = nil
+        self.meditationType = nil
+        self.meditationDurationMinutes = nil
+        self.completedMeditation = false
+        self.contextTags = []
+        self.notes = nil
+        self.meditationCompletedAt = nil
+    }
+    
+    // Enhanced initializer for full data
+    init(id: UUID = UUID(), mood: MoodState, timestamp: Date = Date(), 
+                meditationSessionId: UUID? = nil, postMoodRating: Int? = nil,
+                moodIntensity: Int? = nil, stressLevel: Int? = nil, energyLevel: Int? = nil,
+                postMeditationMood: Int? = nil, meditationType: String? = nil,
+                meditationDurationMinutes: Int? = nil, completedMeditation: Bool = false,
+                contextTags: [String] = [], notes: String? = nil, 
+                meditationCompletedAt: Date? = nil) {
+        self.id = id
+        self.mood = mood
+        self.timestamp = timestamp
+        self.meditationSessionId = meditationSessionId
+        self.postMoodRating = postMoodRating
+        self.moodIntensity = moodIntensity
+        self.stressLevel = stressLevel
+        self.energyLevel = energyLevel
+        self.postMeditationMood = postMeditationMood
+        self.meditationType = meditationType
+        self.meditationDurationMinutes = meditationDurationMinutes
+        self.completedMeditation = completedMeditation
+        self.contextTags = contextTags
+        self.notes = notes
+        self.meditationCompletedAt = meditationCompletedAt
     }
 }
 

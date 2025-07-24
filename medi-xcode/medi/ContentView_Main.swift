@@ -70,7 +70,7 @@ struct ContentView_Main: View {
         .accentColor(.purple)
         .sheet(isPresented: $showingMoodCheckIn) {
             MoodCheckInView { mood in
-                meditationManager.createMoodSession(mood: mood)
+                meditationManager.createMoodSession(mood: mood, userId: authManager.userID)
                 // Don't dismiss here - let the MoodCheckInView handle the full flow
             } onDismiss: {
                 showingMoodCheckIn = false

@@ -12,9 +12,18 @@ public class SupabaseManager: ObservableObject {
     @Published public var syncError: String?
     
     private init() {
-        // Initialize with your Supabase URL and anon key
-        let supabaseUrl = URL(string: "YOUR_SUPABASE_URL")!
-        let supabaseKey = "YOUR_SUPABASE_ANON_KEY"
+        // ⚠️ REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS ⚠️
+        // Get these from: https://supabase.com/dashboard → Your Project → Settings → API
+        
+        let supabaseUrl = URL(string: "https://ynrrhthrjpztqluhbhfj.supabase.co")! // e.g., "https://yourproject.supabase.co"
+        let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlucnJodGhyanB6dHFsdWhiaGZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMTUwNTMsImV4cCI6MjA2MDc5MTA1M30.GvZNoCDvjY6rLCHy4-Twi5iWtqk8T7ZR7XqaLnaOsgE" // Your anon/public key from dashboard
+        
+        // Validate credentials are set
+        if supabaseUrl.absoluteString.contains("YOUR_SUPABASE") || supabaseKey.contains("YOUR_SUPABASE") {
+            print("❌ SUPABASE ERROR: Please update your Supabase credentials in SupabaseManager.swift")
+            print("📖 Instructions: https://supabase.com/dashboard → Settings → API")
+        }
+        
         self.client = SupabaseClient(supabaseURL: supabaseUrl, supabaseKey: supabaseKey)
         
         // Set the initial last sync date
@@ -168,6 +177,104 @@ public class SupabaseManager: ObservableObject {
             return nil
         }
     }
+    
+    // MARK: - Mood Sessions
+    
+    /// Syncs local mood sessions to Supabase
+    @MainActor
+    public func syncMoodSessions(userId: String, moodSessions: [MoodSession]) async {
+        guard !userId.isEmpty, !userId.hasPrefix("anonymous_") else { return }
+        
+        do {
+            isSyncing = true
+            syncError = nil
+            
+            // Get existing mood sessions
+            let existingMoodSessions: [CloudMoodSession] = try await client.database
+                .from("mood_sessions")
+                .select(columns: "id")
+                .eq(column: "user_id", value: userId)
+                .execute()
+                .value
+            let existingIds = Set(existingMoodSessions.map { $0.id })
+            
+            // Find sessions that need to be synced
+            let sessionsToSync = moodSessions.filter { !existingIds.contains($0.id.uuidString) }
+            
+            if !sessionsToSync.isEmpty {
+                let cloudMoodSessions = sessionsToSync.map { CloudMoodSession(from: $0, userId: userId) }
+                
+                try await client.database
+                    .from("mood_sessions")
+                    .insert(values: cloudMoodSessions)
+                    .execute()
+                
+                print("Synced \(sessionsToSync.count) mood sessions to Supabase")
+            }
+            
+            isSyncing = false
+            lastSyncDate = Date()
+            UserDefaults.standard.set(lastSyncDate, forKey: "lastSupabaseSync")
+        } catch {
+            isSyncing = false
+            syncError = "Failed to sync mood sessions: \(error.localizedDescription)"
+            print("Supabase mood sync error: \(error)")
+        }
+    }
+    
+    /// Fetches mood sessions from Supabase
+    @MainActor
+    public func fetchMoodSessions(userId: String) async -> [MoodSession]? {
+        guard !userId.isEmpty, !userId.hasPrefix("anonymous_") else { return nil }
+        
+        do {
+            isSyncing = true
+            syncError = nil
+            
+            // Get all mood sessions for this user
+            let cloudMoodSessions: [CloudMoodSession] = try await client.database
+                .from("mood_sessions")
+                .select()
+                .eq(column: "user_id", value: userId)
+                .order(column: "created_at", ascending: false)
+                .execute()
+                .value
+            
+            // Convert to local format
+            let moodSessions = cloudMoodSessions.compactMap { cloudSession -> MoodSession? in
+                guard let moodState = MoodState(rawValue: cloudSession.mood_state) else { return nil }
+                
+                return MoodSession(
+                    id: UUID(uuidString: cloudSession.id) ?? UUID(),
+                    mood: moodState,
+                    timestamp: cloudSession.created_at,
+                    meditationSessionId: cloudSession.meditation_session_id.flatMap { UUID(uuidString: $0) },
+                    postMoodRating: nil, // This would need to be added to schema if we want to sync it
+                    moodIntensity: cloudSession.mood_intensity,
+                    stressLevel: cloudSession.stress_level,
+                    energyLevel: cloudSession.energy_level,
+                    postMeditationMood: cloudSession.post_meditation_mood,
+                    meditationType: cloudSession.meditation_type,
+                    meditationDurationMinutes: cloudSession.meditation_duration_minutes,
+                    completedMeditation: cloudSession.completed_meditation,
+                    contextTags: cloudSession.context_tags ?? [],
+                    notes: cloudSession.notes,
+                    meditationCompletedAt: cloudSession.meditation_completed_at
+                )
+            }
+            
+            isSyncing = false
+            lastSyncDate = Date()
+            UserDefaults.standard.set(lastSyncDate, forKey: "lastSupabaseSync")
+            
+            return moodSessions
+        } catch {
+            isSyncing = false
+            syncError = "Failed to fetch mood sessions: \(error.localizedDescription)"
+            print("Supabase mood fetch error: \(error)")
+            return nil
+        }
+    }
 }
 
 // MARK: - Data Models
@@ -203,5 +310,42 @@ public struct CloudSession: Codable {
         self.date = date
         self.duration = duration
         self.completed = completed
+    }
+}
+
+/// Cloud mood session format for Supabase
+public struct CloudMoodSession: Codable {
+    public let id: String
+    public let user_id: String
+    public let meditation_session_id: String?
+    public let mood_state: String
+    public let mood_intensity: Int?
+    public let stress_level: Int?
+    public let energy_level: Int?
+    public let post_meditation_mood: Int?
+    public let meditation_type: String?
+    public let meditation_duration_minutes: Int?
+    public let completed_meditation: Bool
+    public let context_tags: [String]?
+    public let notes: String?
+    public let created_at: Date
+    public let meditation_completed_at: Date?
+    
+    public init(from moodSession: MoodSession, userId: String) {
+        self.id = moodSession.id.uuidString
+        self.user_id = userId
+        self.meditation_session_id = moodSession.meditationSessionId?.uuidString
+        self.mood_state = moodSession.mood.rawValue
+        self.mood_intensity = moodSession.moodIntensity
+        self.stress_level = moodSession.stressLevel
+        self.energy_level = moodSession.energyLevel
+        self.post_meditation_mood = moodSession.postMeditationMood
+        self.meditation_type = moodSession.meditationType
+        self.meditation_duration_minutes = moodSession.meditationDurationMinutes
+        self.completed_meditation = moodSession.completedMeditation
+        self.context_tags = moodSession.contextTags.isEmpty ? nil : moodSession.contextTags
+        self.notes = moodSession.notes
+        self.created_at = moodSession.timestamp
+        self.meditation_completed_at = moodSession.meditationCompletedAt
     }
 } 
