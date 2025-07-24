@@ -2,6 +2,11 @@ import Foundation
 import AuthenticationServices
 import SwiftUI
 import Supabase
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 public class AuthManager: NSObject, ObservableObject {
     @Published public var isSignedIn = false
@@ -120,6 +125,14 @@ extension AuthManager: ASAuthorizationControllerDelegate {
                 errorMessage = "Sign-in not handled"
             case .unknown:
                 errorMessage = "Unknown error occurred"
+            case .notInteractive:
+                errorMessage = "Sign-in not interactive"
+            case .matchedExcludedCredential:
+                errorMessage = "Credential excluded"
+            case .credentialImport:
+                errorMessage = "Credential import failed"
+            case .credentialExport:
+                errorMessage = "Credential export failed"
             @unknown default:
                 errorMessage = "Sign-in failed"
             }
@@ -133,9 +146,14 @@ extension AuthManager: ASAuthorizationControllerDelegate {
 
 extension AuthManager: ASAuthorizationControllerPresentationContextProviding {
     public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        #if canImport(UIKit)
         let scenes = UIApplication.shared.connectedScenes
         let windowScene = scenes.first as? UIWindowScene
         let window = windowScene?.windows.first ?? UIWindow()
         return window
+        #else
+        // For macOS or other platforms - return a basic NSWindow
+        return NSWindow()
+        #endif
     }
 } 

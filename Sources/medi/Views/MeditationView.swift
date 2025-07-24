@@ -1,11 +1,11 @@
 import SwiftUI
 
-struct MeditationView: View {
+public struct MeditationView: View {
     @EnvironmentObject var meditationManager: MeditationManager
     @State private var breathingScale: CGFloat = 1.0
     @State private var showingDurationPicker = false
     
-    var body: some View {
+    public var body: some View {
         ZStack {
             // Background gradient
             LinearGradient(

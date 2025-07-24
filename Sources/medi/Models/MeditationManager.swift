@@ -11,6 +11,10 @@ public class MeditationManager: ObservableObject {
     @Published public var isSyncing = false
     @Published public var syncStatus: String?
     
+    // Mood tracking
+    @Published public var moodSessions: [MoodSession] = []
+    @Published public var currentMoodSession: MoodSession?
+    
     private var timer: AnyCancellable?
     private var startTime: Date?
     private let supabase = SupabaseManager.shared
@@ -19,6 +23,7 @@ public class MeditationManager: ObservableObject {
     
     public init() {
         loadSessions()
+        loadMoodSessions()
         timeRemaining = Double(selectedDuration * 60)
     }
     
@@ -64,11 +69,17 @@ public class MeditationManager: ObservableObject {
         if let startTime = startTime {
             let session = MeditationSession(
                 date: startTime,
-                duration: selectedDuration * 60,
+                duration: Double(selectedDuration * 60),
                 completed: true
             )
             completedSessions.append(session)
             saveSessions()
+            
+            // Link to mood session if one exists
+            if var moodSession = currentMoodSession {
+                moodSession.meditationSessionId = session.id
+                updateMoodSession(moodSession)
+            }
         }
         
         timeRemaining = Double(selectedDuration * 60)
@@ -130,6 +141,46 @@ public class MeditationManager: ObservableObject {
         }
         
         isSyncing = false
+    }
+    
+    // MARK: - Mood Session Management
+    
+    public func createMoodSession(mood: MoodState) {
+        let moodSession = MoodSession(mood: mood)
+        moodSessions.append(moodSession)
+        currentMoodSession = moodSession
+        saveMoodSessions()
+    }
+    
+    public func updateMoodSession(_ updatedSession: MoodSession) {
+        if let index = moodSessions.firstIndex(where: { $0.id == updatedSession.id }) {
+            moodSessions[index] = updatedSession
+            saveMoodSessions()
+        }
+    }
+    
+    public func rateMoodSessionExperience(rating: Int) {
+        guard var currentSession = currentMoodSession else { return }
+        currentSession.postMoodRating = rating
+        updateMoodSession(currentSession)
+        currentMoodSession = nil // Clear after rating
+    }
+    
+    public func getMoodInsights() -> MoodInsights {
+        return MoodInsights(moodSessions: moodSessions)
+    }
+    
+    private func saveMoodSessions() {
+        if let encoded = try? JSONEncoder().encode(moodSessions) {
+            UserDefaults.standard.set(encoded, forKey: "mood_sessions")
+        }
+    }
+    
+    private func loadMoodSessions() {
+        if let data = UserDefaults.standard.data(forKey: "mood_sessions"),
+           let decoded = try? JSONDecoder().decode([MoodSession].self, from: data) {
+            moodSessions = decoded
+        }
     }
 }
 

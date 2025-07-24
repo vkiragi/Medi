@@ -33,18 +33,18 @@ public class SupabaseManager: ObservableObject {
             syncError = nil
             
             // Try to get existing profile
-            let response = try await client
+            let response = try await client.database
                 .from("profiles")
                 .select()
-                .eq("id", value: userId)
+                .eq(column: "id", value: userId)
                 .single()
                 .execute()
             
             // If no profile exists, create one
             if response.count == 0 {
-                try await client
+                try await client.database
                     .from("profiles")
-                    .insert(ProfileData(
+                    .insert(values: ProfileData(
                         id: userId,
                         email: email,
                         name: name,
@@ -56,10 +56,10 @@ public class SupabaseManager: ObservableObject {
                 print("Created new profile for user: \(userId)")
             } else {
                 // Update last sign in date
-                try await client
+                try await client.database
                     .from("profiles")
-                    .update(["last_sign_in": Date()])
-                    .eq("id", value: userId)
+                    .update(values: ["last_sign_in": Date()])
+                    .eq(column: "id", value: userId)
                     .execute()
                 
                 print("Updated existing profile for user: \(userId)")
@@ -87,15 +87,12 @@ public class SupabaseManager: ObservableObject {
             syncError = nil
             
             // Get the sessions that are already synced
-            let response = try await client
+            let existingSessions: [CloudSession] = try await client.database
                 .from("meditation_sessions")
-                .select("session_id")
-                .eq("user_id", value: userId)
+                .select(columns: "session_id")
+                .eq(column: "user_id", value: userId)
                 .execute()
-            
-            // Parse the response to get existing session IDs
-            let decoder = JSONDecoder()
-            let existingSessions = try decoder.decode([CloudSession].self, from: response.data)
+                .value
             let existingIds = Set(existingSessions.map { $0.session_id })
             
             // Find sessions that need to be synced (not already in the cloud)
@@ -114,9 +111,9 @@ public class SupabaseManager: ObservableObject {
                 }
                 
                 // Upload new sessions
-                try await client
+                try await client.database
                     .from("meditation_sessions")
-                    .insert(cloudSessions)
+                    .insert(values: cloudSessions)
                     .execute()
                 
                 print("Synced \(sessionsToSync.count) new meditation sessions")
@@ -142,15 +139,12 @@ public class SupabaseManager: ObservableObject {
             syncError = nil
             
             // Get all sessions for this user
-            let response = try await client
+            let cloudSessions: [CloudSession] = try await client.database
                 .from("meditation_sessions")
                 .select()
-                .eq("user_id", value: userId)
+                .eq(column: "user_id", value: userId)
                 .execute()
-            
-            // Parse the response
-            let decoder = JSONDecoder()
-            let cloudSessions = try decoder.decode([CloudSession].self, from: response.data)
+                .value
             
             // Convert to local format
             let sessions = cloudSessions.map { cloudSession in

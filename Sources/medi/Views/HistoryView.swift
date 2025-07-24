@@ -1,9 +1,9 @@
 import SwiftUI
 
-struct HistoryView: View {
+public struct HistoryView: View {
     @EnvironmentObject var meditationManager: MeditationManager
     
-    var body: some View {
+    public var body: some View {
         NavigationView {
             ZStack {
                 // Background
