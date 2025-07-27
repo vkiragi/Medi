@@ -84,6 +84,44 @@ public class SupabaseManager: ObservableObject {
         }
     }
     
+    /// Updates the user profile in Supabase
+    @MainActor
+    public func updateProfile(userId: String, email: String?, name: String?) async {
+        guard !userId.isEmpty, !userId.hasPrefix("anonymous_") else { return }
+        
+        print("🔄 Updating profile for user: \(userId)")
+        
+        do {
+            isSyncing = true
+            syncError = nil
+            
+            var updateData: [String: String] = [:]
+            if let email = email {
+                updateData["email"] = email
+            }
+            if let name = name {
+                updateData["name"] = name
+            }
+            
+            // Update the profile
+            try await client.database
+                .from("profiles")
+                .update(values: updateData)
+                .eq(column: "id", value: userId)
+                .execute()
+            
+            print("✅ Updated profile for user: \(userId)")
+            
+            isSyncing = false
+            lastSyncDate = Date()
+            UserDefaults.standard.set(lastSyncDate, forKey: "lastSupabaseSync")
+        } catch {
+            isSyncing = false
+            syncError = "Failed to update profile: \(error.localizedDescription)"
+            print("Supabase profile update error: \(error)")
+        }
+    }
+    
     // MARK: - Meditation Sessions
     
     /// Syncs local meditation sessions to Supabase

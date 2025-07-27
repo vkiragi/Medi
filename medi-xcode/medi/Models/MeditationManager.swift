@@ -61,7 +61,69 @@ class MeditationManager: ObservableObject {
         timeRemaining = Double(selectedDuration * 60)
     }
     
+    /// Completes the current session early, counting the time spent meditating
+    func completeEarly() {
+        print("🎯 Session completion triggered (early)")
+        
+        guard isActive, let startTime = startTime else { 
+            print("❌ Cannot complete early - session not active or no start time")
+            return 
+        }
+        
+        timer?.cancel()
+        isActive = false
+        isPaused = false
+        
+        // Calculate actual time spent meditating
+        let actualDuration = Double(selectedDuration * 60) - timeRemaining
+        let minutesSpent = actualDuration / 60
+        
+        print("⏱️ Actual duration: \(actualDuration)s")
+        print("📊 Minutes spent: \(minutesSpent)")
+        
+        // Only count if at least 30 seconds were spent meditating
+        if actualDuration >= 30 {
+            let session = MeditationSession(
+                date: startTime,
+                duration: actualDuration,
+                completed: false // Mark as partial completion
+            )
+            
+            print("📝 Created partial session: \(session.id.uuidString)")
+            print("📅 Start time: \(startTime)")
+            print("⏱️ Duration: \(session.duration)s")
+            print("✅ Completed: \(session.completed)")
+            
+            completedSessions.append(session)
+            saveSessions()
+            
+            print("💾 Saved to local storage. Total sessions: \(completedSessions.count)")
+            
+            // Link to mood session if one exists
+            if var moodSession = currentMoodSession {
+                moodSession.meditationSessionId = session.id
+                moodSession.meditationType = "timer_meditation"
+                moodSession.meditationDurationMinutes = Int(minutesSpent)
+                moodSession.completedMeditation = false
+                moodSession.meditationCompletedAt = Date()
+                updateMoodSession(moodSession)
+            }
+            
+            // Auto-sync to cloud in background
+            print("☁️ Triggering auto-sync...")
+            Task {
+                await autoSyncToCloud()
+            }
+        } else {
+            print("⚠️ Session too short (< 30s) - not counting")
+        }
+        
+        timeRemaining = Double(selectedDuration * 60)
+    }
+    
     func complete() {
+        print("🎯 Session completion triggered (full)")
+        
         timer?.cancel()
         isActive = false
         isPaused = false
@@ -72,8 +134,16 @@ class MeditationManager: ObservableObject {
                 duration: Double(selectedDuration * 60),
                 completed: true
             )
+            
+            print("📝 Created session: \(session.id.uuidString)")
+            print("📅 Start time: \(startTime)")
+            print("⏱️ Duration: \(session.duration)s")
+            print("✅ Completed: \(session.completed)")
+            
             completedSessions.append(session)
             saveSessions()
+            
+            print("💾 Saved to local storage. Total sessions: \(completedSessions.count)")
             
             // Link to mood session if one exists and capture meditation data
             if var moodSession = currentMoodSession {
@@ -83,9 +153,15 @@ class MeditationManager: ObservableObject {
                 moodSession.completedMeditation = true
                 moodSession.meditationCompletedAt = Date()
                 updateMoodSession(moodSession)
-                
-                // Note: Cloud sync should be called from the view with the current user ID
             }
+            
+            // Auto-sync to cloud in background
+            print("☁️ Triggering auto-sync...")
+            Task {
+                await autoSyncToCloud()
+            }
+        } else {
+            print("❌ No start time found for session completion")
         }
         
         timeRemaining = Double(selectedDuration * 60)
@@ -147,6 +223,34 @@ class MeditationManager: ObservableObject {
         }
         
         isSyncing = false
+    }
+    
+    /// Auto-syncs the latest session to cloud (called after completing a session)
+    @MainActor
+    private func autoSyncToCloud() async {
+        print("🔄 Auto-sync triggered...")
+        
+        // Get the current user ID from UserDefaults (since we don't have direct access to AuthManager here)
+        guard let userId = UserDefaults.standard.string(forKey: "apple_user_id"),
+              !userId.hasPrefix("anonymous_") else { 
+            print("❌ Auto-sync failed - no valid user ID")
+            return 
+        }
+        
+        print("👤 User ID for auto-sync: \(userId)")
+        print("📊 Total completed sessions: \(completedSessions.count)")
+        
+        // Only sync the latest session to avoid full sync overhead
+        if let latestSession = completedSessions.last {
+            print("📤 Syncing latest session: \(latestSession.id.uuidString)")
+            print("📅 Session date: \(latestSession.date)")
+            print("⏱️ Session duration: \(latestSession.duration)s")
+            print("✅ Session completed: \(latestSession.completed)")
+            
+            await supabase.syncMeditationSessions(userId: userId, sessions: [latestSession])
+        } else {
+            print("⚠️ No completed sessions to sync")
+        }
     }
     
     /// Syncs mood sessions with Supabase

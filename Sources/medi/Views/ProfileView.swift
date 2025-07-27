@@ -1,14 +1,15 @@
 import SwiftUI
-import medi
 
-struct ProfileView: View {
+public struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var meditationManager: MeditationManager
     @State private var showingEditProfile = false
     @State private var showingDataExport = false
     @State private var showingDeleteAccount = false
     
-    var body: some View {
+    public init() {}
+    
+    public var body: some View {
         NavigationView {
             ZStack {
                 // Background
@@ -84,36 +85,9 @@ struct ProfileView: View {
                         
                         // Meditation Stats
                         VStack(spacing: 20) {
-                            HStack {
-                                Text("Meditation Journey")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
-                                
-                                Spacer()
-                                
-                                // Sync status indicator
-                                if let userId = authManager.userID, !userId.hasPrefix("anonymous_") {
-                                    HStack(spacing: 6) {
-                                        if meditationManager.isSyncing {
-                                            ProgressView()
-                                                .scaleEffect(0.6)
-                                                .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
-                                        } else {
-                                            Image(systemName: "icloud.fill")
-                                                .font(.system(size: 14))
-                                                .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
-                                        }
-                                        
-                                        Text(meditationManager.isSyncing ? "Syncing..." : "Cloud")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
-                                    }
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color(red: 0.6, green: 0.7, blue: 0.9).opacity(0.1))
-                                    .cornerRadius(8)
-                                }
-                            }
+                            Text("Meditation Journey")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
                             
                             HStack(spacing: 15) {
                                 StatCard(
@@ -133,28 +107,6 @@ struct ProfileView: View {
                                     label: "Day Streak",
                                     icon: "flame.fill"
                                 )
-                            }
-                            
-                            // Last sync info
-                            if let userId = authManager.userID, !userId.hasPrefix("anonymous_"),
-                               let lastSync = SupabaseManager.shared.lastSyncDate {
-                                HStack {
-                                    Text("Last synced: \(formatLastSync(lastSync))")
-                                        .font(.system(size: 12, weight: .light))
-                                        .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
-                                    
-                                    Spacer()
-                                    
-                                    Button("Sync Now") {
-                                        Task {
-                                            await meditationManager.syncWithCloud(userId: userId)
-                                        }
-                                    }
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
-                                    .disabled(meditationManager.isSyncing)
-                                }
-                                .padding(.horizontal, 20)
                             }
                         }
                         .padding(.horizontal, 20)
@@ -385,50 +337,33 @@ struct ProfileView: View {
         return authManager.isSignedIn && !isAnonymous && !hasCustomName && !hasAppleName
     }
     
-    private func formatLastSync(_ date: Date) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: date, relativeTo: Date())
-    }
-    
     private func getDisplayName() -> String {
         // Priority order for display name:
         // 1. Custom display name set by user
         // 2. Apple Sign-In name
-        // 3. Fallback for signed-in users without name
-        // 4. Fallback for anonymous users
-        
-        print("🔍 DEBUG: getDisplayName() called")
-        print("🔍 DEBUG: authManager.userID = \(authManager.userID ?? "nil")")
-        print("🔍 DEBUG: authManager.userName = \(authManager.userName ?? "nil")")
-        print("🔍 DEBUG: authManager.isSignedIn = \(authManager.isSignedIn)")
+        // 3. Fallback for anonymous users
         
         // Check for custom display name first
         if let customName = UserDefaults.standard.string(forKey: "user_display_name"), !customName.isEmpty {
-            print("🔍 DEBUG: Using custom display name: \(customName)")
             return customName
         }
         
         // Check for Apple Sign-In name
         if let appleName = authManager.userName, !appleName.isEmpty {
-            print("🔍 DEBUG: Using Apple Sign-In name: \(appleName)")
             return appleName
         }
         
         // Check if user is anonymous
         if authManager.userID?.starts(with: "anonymous") == true {
-            print("🔍 DEBUG: User is anonymous")
             return "Anonymous Meditator"
         }
         
         // User is signed in with Apple ID but no name available
         if authManager.isSignedIn && authManager.userID != nil {
-            print("🔍 DEBUG: User signed in but no name available")
             return "Mindful Friend"
         }
         
         // Final fallback
-        print("🔍 DEBUG: Using fallback name: Meditator")
         return "Meditator"
     }
     

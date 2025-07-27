@@ -4,6 +4,10 @@ public struct MeditationView: View {
     @EnvironmentObject var meditationManager: MeditationManager
     @State private var breathingScale: CGFloat = 1.0
     @State private var showingDurationPicker = false
+    @State private var breathPhase: BreathPhase = .inhale
+    @State private var rippleScale: CGFloat = 1.0
+    @State private var rippleOpacity: Double = 0.0
+    @State private var breathTimer: Timer?
     
     public var body: some View {
         ZStack {
@@ -18,63 +22,102 @@ public struct MeditationView: View {
             )
             .ignoresSafeArea()
             
-            VStack(spacing: 50) {
+            VStack(spacing: 0) {
                 // Title
-                Text("medi")
-                    .font(.system(size: 48, weight: .thin, design: .rounded))
-                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                Text("Meditation")
+                    .font(.system(size: 32, weight: .light))
+                    .foregroundColor(.white)
                     .padding(.top, 50)
                 
                 Spacer()
                 
-                // Breathing Circle & Timer
+                // Modern breathing animation
                 ZStack {
-                    // Breathing circle
+                    // Background circle (subtle)
+                    Circle()
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: 280, height: 280)
+                    
+                    // Ripple effects
+                    ForEach(0..<3, id: \.self) { index in
+                        Circle()
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            .frame(width: 200, height: 200)
+                            .scaleEffect(rippleScale)
+                            .opacity(rippleOpacity)
+                            .animation(
+                                meditationManager.isActive && !meditationManager.isPaused ?
+                                    Animation.easeOut(duration: 4)
+                                        .repeatForever(autoreverses: false)
+                                        .delay(Double(index) * 1.33) :
+                                    .default,
+                                value: rippleScale
+                            )
+                    }
+                    
+                    // Main breathing circle
                     Circle()
                         .fill(
-                            RadialGradient(
+                            LinearGradient(
                                 gradient: Gradient(colors: [
-                                    Color(red: 0.6, green: 0.7, blue: 0.9).opacity(0.3),
-                                    Color(red: 0.7, green: 0.8, blue: 1.0).opacity(0.1)
+                                    Color.white.opacity(0.4),
+                                    Color.white.opacity(0.2)
                                 ]),
-                                center: .center,
-                                startRadius: 5,
-                                endRadius: 150
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 250, height: 250)
+                        .frame(width: 180, height: 180)
                         .scaleEffect(breathingScale)
                         .animation(
                             meditationManager.isActive && !meditationManager.isPaused ?
-                            Animation.easeInOut(duration: 4).repeatForever(autoreverses: true) :
-                            .default,
+                                Animation.easeInOut(duration: 4).repeatForever(autoreverses: true) :
+                                .default,
                             value: breathingScale
                         )
                     
-                    // Timer display
-                    VStack(spacing: 10) {
+                    // Timer and breath guidance
+                    VStack(spacing: 8) {
                         Text(timeString(from: meditationManager.timeRemaining))
-                            .font(.system(size: 48, weight: .light, design: .rounded))
-                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                            .font(.system(size: 48, weight: .ultraLight))
+                            .foregroundColor(.white)
+                            .tracking(2)
                         
-                        if meditationManager.isActive {
-                            Text(meditationManager.isPaused ? "Paused" : "Breathe")
-                                .font(.system(size: 18, weight: .light))
-                                .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
-                                .animation(.easeInOut, value: meditationManager.isPaused)
+                        if meditationManager.isActive && !meditationManager.isPaused {
+                            Text(breathPhase.rawValue)
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white.opacity(0.8))
+                                .animation(.easeInOut(duration: 2), value: breathPhase)
+                        } else {
+                            Text("remaining")
+                                .font(.system(size: 14, weight: .light))
+                                .foregroundColor(.white.opacity(0.6))
                         }
                     }
                 }
                 .onAppear {
                     if meditationManager.isActive && !meditationManager.isPaused {
-                        breathingScale = 1.3
+                        startBreathingAnimation()
                     }
                 }
-                .onChange(of: meditationManager.isActive) { newValue in
-                    breathingScale = newValue && !meditationManager.isPaused ? 1.3 : 1.0
+                .onChange(of: meditationManager.isActive) { isActive in
+                    if isActive && !meditationManager.isPaused {
+                        startBreathingAnimation()
+                    } else {
+                        stopBreathingAnimation()
+                    }
                 }
                 .onChange(of: meditationManager.isPaused) { isPaused in
-                    breathingScale = meditationManager.isActive && !isPaused ? 1.3 : 1.0
+                    if meditationManager.isActive && !isPaused {
+                        startBreathingAnimation()
+                    } else {
+                        stopBreathingAnimation()
+                    }
+                }
+                .onReceive(meditationManager.$isActive) { isActive in
+                    if !isActive {
+                        stopBreathingAnimation()
+                    }
                 }
                 
                 Spacer()
@@ -104,7 +147,10 @@ public struct MeditationView: View {
                 HStack(spacing: 40) {
                     if meditationManager.isActive {
                         // Stop button
-                        Button(action: { meditationManager.stop() }) {
+                        Button(action: { 
+                            meditationManager.stop()
+                            stopBreathingAnimation()
+                        }) {
                             Image(systemName: "stop.fill")
                                 .font(.system(size: 24))
                                 .foregroundColor(.white)
@@ -145,11 +191,52 @@ public struct MeditationView: View {
         }
     }
     
+    // MARK: - Helper Functions
+    
+    private func startBreathingAnimation() {
+        breathingScale = 1.3
+        rippleScale = 1.0
+        rippleOpacity = 0.0
+        
+        // Start breath phase animation
+        breathTimer = Timer.scheduledTimer(withTimeInterval: 4.0, repeats: true) { _ in
+            withAnimation(.easeInOut(duration: 2)) {
+                breathPhase = breathPhase == .inhale ? .exhale : .inhale
+            }
+        }
+        
+        // Start ripple animation
+        withAnimation(.easeOut(duration: 4).repeatForever(autoreverses: false)) {
+            rippleScale = 2.0
+            rippleOpacity = 0.0
+        }
+    }
+    
+    private func stopBreathingAnimation() {
+        // Invalidate the breath timer
+        breathTimer?.invalidate()
+        breathTimer = nil
+        
+        withAnimation(.easeOut(duration: 0.5)) {
+            breathingScale = 1.0
+            rippleScale = 1.0
+            rippleOpacity = 0.0
+        }
+        breathPhase = .inhale
+    }
+    
     private func timeString(from timeInterval: TimeInterval) -> String {
         let minutes = Int(timeInterval) / 60
         let seconds = Int(timeInterval) % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
+}
+
+// MARK: - Supporting Types
+
+enum BreathPhase: String, CaseIterable {
+    case inhale = "Breathe in"
+    case exhale = "Breathe out"
 }
 
 struct DurationButton: View {

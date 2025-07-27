@@ -53,6 +53,14 @@ public struct MoodInsightsView: View {
                             .pickerStyle(SegmentedPickerStyle())
                             .padding(.horizontal, 20)
                             
+                            // Debug button (temporary)
+                            Button("🔍 Debug: Show All Data") {
+                                printAllMoodData()
+                            }
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                            .padding(.horizontal, 20)
+                            
                             // Mood trend card
                             InsightCard(
                                 title: "Mood Trend",
@@ -187,9 +195,24 @@ public struct MoodInsightsView: View {
     
     private func loadInsights() {
         let filteredSessions = filterSessionsBy(timeframe: selectedTimeframe)
+        
+        // Debug logging
+        print("🔍 DEBUG: Timeframe selected: \(selectedTimeframe.rawValue)")
+        print("🔍 DEBUG: Total mood sessions: \(meditationManager.moodSessions.count)")
+        print("🔍 DEBUG: Filtered sessions: \(filteredSessions.count)")
+        
         if !filteredSessions.isEmpty {
+            print("🔍 DEBUG: Session timestamps:")
+            for (index, session) in filteredSessions.enumerated() {
+                let formatter = DateFormatter()
+                formatter.dateStyle = .short
+                formatter.timeStyle = .short
+                print("  \(index + 1). \(session.mood.rawValue) - \(formatter.string(from: session.timestamp))")
+            }
+            
             insights = MoodInsights(moodSessions: filteredSessions)
         } else {
+            print("🔍 DEBUG: No sessions found for timeframe")
             insights = nil
         }
     }
@@ -207,6 +230,16 @@ public struct MoodInsightsView: View {
             return meditationManager.moodSessions.filter { $0.timestamp >= monthAgo }
         case .all:
             return meditationManager.moodSessions
+        }
+    }
+    
+    private func printAllMoodData() {
+        print("🔍 DEBUG: All Mood Sessions:")
+        for (index, session) in meditationManager.moodSessions.enumerated() {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            formatter.timeStyle = .short
+            print("  \(index + 1). \(session.mood.rawValue) - \(formatter.string(from: session.timestamp))")
         }
     }
 }

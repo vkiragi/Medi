@@ -27,10 +27,7 @@ class SupabaseManager: ObservableObject {
         self.client = SupabaseClient(supabaseURL: supabaseUrl, supabaseKey: supabaseKey)
         
         // Configure for better simulator compatibility
-        var configuration = URLSessionConfiguration.default
-        configuration.httpMaximumConnectionsPerHost = 1
-        configuration.timeoutIntervalForRequest = 30
-        configuration.timeoutIntervalForResource = 60
+        // Note: URLSessionConfiguration is not used in this version
         
         print("🔗 Supabase client initialized for: \(supabaseUrl.absoluteString)")
         print("📅 Configured for ISO 8601 date handling")
@@ -146,18 +143,64 @@ class SupabaseManager: ObservableObject {
         }
     }
     
+    /// Updates the user profile in Supabase
+    @MainActor
+    func updateProfile(userId: String, email: String?, name: String?) async {
+        guard !userId.isEmpty, !userId.hasPrefix("anonymous_") else { return }
+        
+        print("🔄 Updating profile for user: \(userId)")
+        
+        do {
+            isSyncing = true
+            syncError = nil
+            
+            var updateData: [String: String] = [:]
+            if let email = email {
+                updateData["email"] = email
+            }
+            if let name = name {
+                updateData["name"] = name
+            }
+            
+            // Update the profile
+            try await client
+                .from("profiles")
+                .update(updateData)
+                .eq("id", value: userId)
+                .execute()
+            
+            print("✅ Updated profile for user: \(userId)")
+            
+            isSyncing = false
+            lastSyncDate = Date()
+            UserDefaults.standard.set(lastSyncDate, forKey: "lastSupabaseSync")
+        } catch {
+            isSyncing = false
+            syncError = "Failed to update profile: \(error.localizedDescription)"
+            print("Supabase profile update error: \(error)")
+        }
+    }
+    
     // MARK: - Meditation Sessions
     
     /// Syncs local meditation sessions to Supabase
     @MainActor
     func syncMeditationSessions(userId: String, sessions: [MeditationSession]) async {
-        guard !userId.isEmpty, !userId.hasPrefix("anonymous_") else { return }
+        print("🔄 Starting meditation session sync...")
+        print("👤 User ID: \(userId)")
+        print("📊 Local sessions count: \(sessions.count)")
+        
+        guard !userId.isEmpty, !userId.hasPrefix("anonymous_") else { 
+            print("❌ Skipping sync - invalid user ID")
+            return 
+        }
         
         do {
             isSyncing = true
             syncError = nil
             
             // Get the sessions that are already synced
+            print("🔍 Checking existing sessions in cloud...")
             let response = try await client
                 .from("meditation_sessions")
                 .select("session_id")
@@ -169,8 +212,12 @@ class SupabaseManager: ObservableObject {
             let existingSessions = try decoder.decode([CloudSession].self, from: response.data)
             let existingIds = Set(existingSessions.map { $0.session_id })
             
+            print("☁️ Existing sessions in cloud: \(existingIds.count)")
+            
             // Find sessions that need to be synced (not already in the cloud)
             let sessionsToSync = sessions.filter { !existingIds.contains($0.id.uuidString) }
+            
+            print("📤 Sessions to sync: \(sessionsToSync.count)")
             
             if !sessionsToSync.isEmpty {
                 // Convert local sessions to cloud format
@@ -184,13 +231,21 @@ class SupabaseManager: ObservableObject {
                     )
                 }
                 
+                print("📋 Cloud sessions to insert:")
+                for (index, session) in cloudSessions.enumerated() {
+                    print("  \(index + 1). ID: \(session.session_id), Date: \(session.date), Duration: \(session.duration)s, Completed: \(session.completed)")
+                }
+                
                 // Upload new sessions
+                print("🚀 Inserting sessions into cloud...")
                 try await client
                     .from("meditation_sessions")
                     .insert(cloudSessions)
                     .execute()
                 
-                print("Synced \(sessionsToSync.count) new meditation sessions")
+                print("✅ Successfully synced \(sessionsToSync.count) new meditation sessions")
+            } else {
+                print("ℹ️ No new sessions to sync")
             }
             
             isSyncing = false
@@ -199,7 +254,8 @@ class SupabaseManager: ObservableObject {
         } catch {
             isSyncing = false
             syncError = "Failed to sync sessions: \(error.localizedDescription)"
-            print("Supabase session sync error: \(error)")
+            print("❌ Supabase session sync error: \(error)")
+            print("🔍 Error details: \(error)")
         }
     }
     

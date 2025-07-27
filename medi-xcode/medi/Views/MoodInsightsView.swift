@@ -51,6 +51,14 @@ struct MoodInsightsView: View {
                             .pickerStyle(SegmentedPickerStyle())
                             .padding(.horizontal, 20)
                             
+                            // Debug button (temporary)
+                            Button("🔍 Debug: Show All Data") {
+                                printAllMoodData()
+                            }
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                            .padding(.horizontal, 20)
+                            
                             // Summary Cards
                             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 15), count: 2), spacing: 15) {
                                 InsightCard(
@@ -167,15 +175,47 @@ struct MoodInsightsView: View {
         let calendar = Calendar.current
         let now = Date()
         
+        // Debug logging
+        print("🔍 DEBUG: Timeframe selected: \(selectedTimeframe.rawValue)")
+        print("🔍 DEBUG: Total mood sessions: \(meditationManager.moodSessions.count)")
+        
+        let filteredSessions: [MoodSession]
+        
         switch selectedTimeframe {
         case .week:
             let weekAgo = calendar.date(byAdding: .day, value: -7, to: now) ?? now
-            return meditationManager.moodSessions.filter { $0.timestamp >= weekAgo }
+            filteredSessions = meditationManager.moodSessions.filter { $0.timestamp >= weekAgo }
         case .month:
             let monthAgo = calendar.date(byAdding: .day, value: -30, to: now) ?? now
-            return meditationManager.moodSessions.filter { $0.timestamp >= monthAgo }
+            filteredSessions = meditationManager.moodSessions.filter { $0.timestamp >= monthAgo }
         case .all:
-            return meditationManager.moodSessions
+            filteredSessions = meditationManager.moodSessions
+        }
+        
+        print("🔍 DEBUG: Filtered sessions: \(filteredSessions.count)")
+        
+        if !filteredSessions.isEmpty {
+            print("🔍 DEBUG: Session timestamps:")
+            for (index, session) in filteredSessions.enumerated() {
+                let formatter = DateFormatter()
+                formatter.dateStyle = .short
+                formatter.timeStyle = .short
+                print("  \(index + 1). \(session.mood.rawValue) - \(formatter.string(from: session.timestamp))")
+            }
+        } else {
+            print("🔍 DEBUG: No sessions found for timeframe")
+        }
+        
+        return filteredSessions
+    }
+    
+    private func printAllMoodData() {
+        print("🔍 DEBUG: All Mood Sessions:")
+        for (index, session) in meditationManager.moodSessions.enumerated() {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            formatter.timeStyle = .short
+            print("  \(index + 1). \(session.mood.rawValue) - \(formatter.string(from: session.timestamp))")
         }
     }
 }

@@ -61,6 +61,47 @@ public class MeditationManager: ObservableObject {
         timeRemaining = Double(selectedDuration * 60)
     }
     
+    /// Completes the current session early, counting the time spent meditating
+    public func completeEarly() {
+        guard isActive, let startTime = startTime else { return }
+        
+        timer?.cancel()
+        isActive = false
+        isPaused = false
+        
+        // Calculate actual time spent meditating
+        let actualDuration = Double(selectedDuration * 60) - timeRemaining
+        let minutesSpent = actualDuration / 60
+        
+        // Only count if at least 30 seconds were spent meditating
+        if actualDuration >= 30 {
+            let session = MeditationSession(
+                date: startTime,
+                duration: actualDuration,
+                completed: false // Mark as partial completion
+            )
+            completedSessions.append(session)
+            saveSessions()
+            
+            // Link to mood session if one exists
+            if var moodSession = currentMoodSession {
+                moodSession.meditationSessionId = session.id
+                moodSession.meditationType = "timer_meditation"
+                moodSession.meditationDurationMinutes = Int(minutesSpent)
+                moodSession.completedMeditation = false
+                moodSession.meditationCompletedAt = Date()
+                updateMoodSession(moodSession)
+            }
+            
+            // Auto-sync to cloud in background
+            Task {
+                await autoSyncToCloud()
+            }
+        }
+        
+        timeRemaining = Double(selectedDuration * 60)
+    }
+    
     public func complete() {
         timer?.cancel()
         isActive = false
@@ -83,8 +124,11 @@ public class MeditationManager: ObservableObject {
                 moodSession.completedMeditation = true
                 moodSession.meditationCompletedAt = Date()
                 updateMoodSession(moodSession)
-                
-                // Note: Cloud sync should be called from the view with the current user ID
+            }
+            
+            // Auto-sync to cloud in background
+            Task {
+                await autoSyncToCloud()
             }
         }
         
@@ -147,6 +191,19 @@ public class MeditationManager: ObservableObject {
         }
         
         isSyncing = false
+    }
+    
+    /// Auto-syncs the latest session to cloud (called after completing a session)
+    @MainActor
+    private func autoSyncToCloud() async {
+        // Get the current user ID from UserDefaults (since we don't have direct access to AuthManager here)
+        guard let userId = UserDefaults.standard.string(forKey: "apple_user_id"),
+              !userId.hasPrefix("anonymous_") else { return }
+        
+        // Only sync the latest session to avoid full sync overhead
+        if let latestSession = completedSessions.last {
+            await supabase.syncMeditationSessions(userId: userId, sessions: [latestSession])
+        }
     }
     
     /// Syncs mood sessions with Supabase

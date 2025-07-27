@@ -61,6 +61,9 @@ class AuthManager: NSObject, ObservableObject {
                     await syncProfileWithSupabase()
                 }
             }
+        } else {
+            // No stored user data - create anonymous user for immediate app usage
+            continueWithoutSignIn()
         }
     }
     
@@ -83,7 +86,18 @@ extension AuthManager: ASAuthorizationControllerDelegate {
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
             userID = appleIDCredential.user
             userEmail = appleIDCredential.email
-            userName = appleIDCredential.fullName?.givenName
+            
+            // Better name handling - combine given and family name
+            if let fullName = appleIDCredential.fullName {
+                if let givenName = fullName.givenName, let familyName = fullName.familyName {
+                    userName = "\(givenName) \(familyName)"
+                } else if let givenName = fullName.givenName {
+                    userName = givenName
+                } else if let familyName = fullName.familyName {
+                    userName = familyName
+                }
+            }
+            
             isSignedIn = true
             errorMessage = nil
             
