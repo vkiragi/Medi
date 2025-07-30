@@ -40,13 +40,6 @@ class AuthManager: NSObject, ObservableObject {
         UserDefaults.standard.removeObject(forKey: "user_name")
     }
     
-    func continueWithoutSignIn() {
-        // Allow anonymous usage - user can still use the app
-        isSignedIn = true
-        userID = "anonymous_\(UUID().uuidString)"
-        errorMessage = nil
-    }
-    
     private func checkAuthStatus() {
         // Check if user was previously signed in
         if let storedUserID = UserDefaults.standard.string(forKey: "apple_user_id") {
@@ -62,8 +55,8 @@ class AuthManager: NSObject, ObservableObject {
                 }
             }
         } else {
-            // No stored user data - create anonymous user for immediate app usage
-            continueWithoutSignIn()
+            // No stored user data - require sign in
+            isSignedIn = false
         }
     }
     

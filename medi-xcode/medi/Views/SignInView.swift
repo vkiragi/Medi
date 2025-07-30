@@ -3,6 +3,7 @@ import AuthenticationServices
 
 struct SignInView: View {
     @EnvironmentObject var authManager: AuthManager
+    @State private var didAgreeToPolicy: Bool = false
     
     var body: some View {
         ZStack {
@@ -17,9 +18,7 @@ struct SignInView: View {
             )
             .ignoresSafeArea()
             
-            VStack(spacing: 40) {
-                Spacer()
-                
+            VStack(spacing: 24) {
                 // App branding
                 VStack(spacing: 20) {
                     // Logo/Icon
@@ -27,24 +26,18 @@ struct SignInView: View {
                         Circle()
                             .fill(Color(red: 0.6, green: 0.7, blue: 0.9).opacity(0.2))
                             .frame(width: 120, height: 120)
-                        
                         Image(systemName: "leaf.fill")
                             .font(.system(size: 60))
                             .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
                     }
-                    
                     Text("medi")
                         .font(.system(size: 48, weight: .thin, design: .rounded))
                         .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
-                    
                     Text("Find your inner peace")
                         .font(.system(size: 18, weight: .light))
                         .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
                         .multilineTextAlignment(.center)
                 }
-                
-                Spacer()
-                
                 // Benefits
                 VStack(spacing: 15) {
                     FeatureRow(icon: "timer", text: "Guided meditation sessions")
@@ -52,9 +45,6 @@ struct SignInView: View {
                     FeatureRow(icon: "icloud.fill", text: "Sync across all your devices")
                 }
                 .padding(.horizontal, 40)
-                
-                Spacer()
-                
                 // Error message
                 if let errorMessage = authManager.errorMessage {
                     Text(errorMessage)
@@ -63,7 +53,9 @@ struct SignInView: View {
                         .padding(.horizontal, 40)
                         .multilineTextAlignment(.center)
                 }
-                
+                // Privacy Policy Agreement (must be above sign-in button)
+                PrivacyPolicyView(didAgree: $didAgreeToPolicy)
+                    .padding(.bottom, 20)
                 // Apple Sign-In Button
                 VStack(spacing: 20) {
                     SignInWithAppleButton(
@@ -71,28 +63,29 @@ struct SignInView: View {
                             request.requestedScopes = [.fullName, .email]
                         },
                         onCompletion: { result in
-                            switch result {
-                            case .success(let authorization):
-                                // Handle successful authorization
-                                if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-                                    authManager.userID = appleIDCredential.user
-                                    authManager.userEmail = appleIDCredential.email
-                                    authManager.userName = appleIDCredential.fullName?.givenName
-                                    authManager.isSignedIn = true
-                                    authManager.errorMessage = nil
-                                    
-                                    // Store user data
-                                    UserDefaults.standard.set(authManager.userID, forKey: "apple_user_id")
-                                    if let email = authManager.userEmail {
-                                        UserDefaults.standard.set(email, forKey: "user_email")
+                            if didAgreeToPolicy {
+                                switch result {
+                                case .success(let authorization):
+                                    if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+                                        authManager.userID = appleIDCredential.user
+                                        authManager.userEmail = appleIDCredential.email
+                                        authManager.userName = appleIDCredential.fullName?.givenName
+                                        authManager.isSignedIn = true
+                                        authManager.errorMessage = nil
+                                        UserDefaults.standard.set(authManager.userID, forKey: "apple_user_id")
+                                        if let email = authManager.userEmail {
+                                            UserDefaults.standard.set(email, forKey: "user_email")
+                                        }
+                                        if let name = authManager.userName {
+                                            UserDefaults.standard.set(name, forKey: "user_name")
+                                        }
                                     }
-                                    if let name = authManager.userName {
-                                        UserDefaults.standard.set(name, forKey: "user_name")
-                                    }
+                                case .failure(let error):
+                                    print("Apple Sign-In failed: \(error.localizedDescription)")
+                                    authManager.errorMessage = "Sign-in failed. Please try again."
                                 }
-                            case .failure(let error):
-                                print("Apple Sign-In failed: \(error.localizedDescription)")
-                                authManager.errorMessage = "Sign-in failed. You can continue without signing in."
+                            } else {
+                                authManager.errorMessage = "You must agree to the Privacy & AI Policy to use the app."
                             }
                         }
                     )
@@ -100,20 +93,11 @@ struct SignInView: View {
                     .frame(height: 50)
                     .cornerRadius(25)
                     .padding(.horizontal, 40)
-                    
+                    .disabled(!didAgreeToPolicy)
                     Text("Sign in to save your meditation progress")
                         .font(.system(size: 14, weight: .light))
                         .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
                         .multilineTextAlignment(.center)
-                    
-                    // Skip option - always available
-                    Button("Continue without signing in") {
-                        authManager.continueWithoutSignIn()
-                    }
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
-                    .padding(.top, 10)
-                    
                     // Additional help text
                     Text("You can always sign in later from the Profile tab")
                         .font(.system(size: 12, weight: .light))
@@ -121,7 +105,6 @@ struct SignInView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 40)
                 }
-                
                 Spacer()
             }
         }
