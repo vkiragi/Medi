@@ -3,7 +3,7 @@ import SwiftUI
 struct MoodInsightsView: View {
     @EnvironmentObject var meditationManager: MeditationManager
     @State private var insights: MoodInsights?
-    @State private var selectedTimeframe: TimeFrame = .week
+    @State private var selectedTimeframe: TimeFrame = .all
     
     enum TimeFrame: String, CaseIterable {
         case week = "7 Days"
