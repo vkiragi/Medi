@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct GuidedMeditationListView: View {
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
     // Sample guided meditations using existing audio files
     let guidedMeditations = [
         GuidedMeditation(
@@ -46,6 +47,7 @@ struct GuidedMeditationListView: View {
     ]
     
     @State private var selectedCategory = "All"
+    @State private var showingPaywall = false
     let categories = ["All", "Popular", "Sleep", "Stress", "Focus"]
     
     var body: some View {
@@ -56,6 +58,12 @@ struct GuidedMeditationListView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
+                    if !subscriptionManager.isSubscribed {
+                        UpsellHeader { showingPaywall = true }
+                            .padding(.horizontal, 20)
+                            .padding(.top, 12)
+                    }
+                    
                     // Category selector
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 15) {
@@ -81,9 +89,13 @@ struct GuidedMeditationListView: View {
                     ScrollView {
                         VStack(spacing: 20) {
                             ForEach(guidedMeditations) { meditation in
-                                NavigationLink(destination: GuidedMeditationPlayerView(meditation: meditation)) {
+                                NavigationLink(destination: destinationView(for: meditation)) {
                                     GuidedMeditationCard(meditation: meditation)
                                 }
+                                .simultaneousGesture(TapGesture().onEnded {
+                                    if !subscriptionManager.isSubscribed { showingPaywall = true }
+                                })
+                                .disabled(!subscriptionManager.isSubscribed)
                             }
                             .padding(.horizontal, 20)
                         }
@@ -93,6 +105,42 @@ struct GuidedMeditationListView: View {
             }
             .navigationTitle("Guided")
             .navigationBarTitleDisplayMode(.large)
+        }
+        .sheet(isPresented: $showingPaywall) { PaywallView() }
+    }
+    
+    @ViewBuilder
+    private func destinationView(for meditation: GuidedMeditation) -> some View {
+        if subscriptionManager.isSubscribed {
+            GuidedMeditationPlayerView(meditation: meditation)
+        } else {
+            EmptyView()
+        }
+    }
+}
+
+private struct UpsellHeader: View {
+    let onTap: () -> Void
+    var body: some View {
+        Button(action: onTap) {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: "crown.fill")
+                    .foregroundColor(.yellow)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Unlock the full guided library")
+                        .font(.headline)
+                    Text("Get medi Premium for AI plans and all sessions")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 1)
         }
     }
 }

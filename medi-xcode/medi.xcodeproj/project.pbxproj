@@ -13,6 +13,7 @@
 		F520D7322DE5046900F1CACD /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = F520D7312DE5046900F1CACD /* Realtime */; };
 		F520D7342DE5046900F1CACD /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = F520D7332DE5046900F1CACD /* Storage */; };
 		F520D7362DE5046900F1CACD /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = F520D7352DE5046900F1CACD /* Supabase */; };
+		F58F55B62E4D847400484D7D /* Config.debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = F58F55B52E4D847400484D7D /* Config.debug.xcconfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,11 +37,25 @@
 		F520D6972DE43B2800F1CACD /* medi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = medi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F520D6A42DE43B2800F1CACD /* mediTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mediTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F520D6AE2DE43B2800F1CACD /* mediUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mediUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F58F55B52E4D847400484D7D /* Config.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.debug.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F58F55BA2E4D8D1500484D7D /* Exceptions for "medi" folder in "medi" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F520D6962DE43B2800F1CACD /* medi */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F520D6992DE43B2800F1CACD /* medi */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F58F55BA2E4D8D1500484D7D /* Exceptions for "medi" folder in "medi" target */,
+			);
 			path = medi;
 			sourceTree = "<group>";
 		};
@@ -94,6 +109,7 @@
 				F520D6A72DE43B2800F1CACD /* mediTests */,
 				F520D6B12DE43B2800F1CACD /* mediUITests */,
 				F520D6982DE43B2800F1CACD /* Products */,
+				F58F55B52E4D847400484D7D /* Config.debug.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -236,6 +252,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F58F55B62E4D847400484D7D /* Config.debug.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,6 +312,7 @@
 /* Begin XCBuildConfiguration section */
 		F520D6B62DE43B2800F1CACD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F58F55B52E4D847400484D7D /* Config.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -425,6 +443,7 @@
 				DEVELOPMENT_TEAM = 2YT37YL2GZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = medi/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -458,6 +477,7 @@
 				DEVELOPMENT_TEAM = 2YT37YL2GZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = medi/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

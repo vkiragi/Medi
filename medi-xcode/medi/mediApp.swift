@@ -4,6 +4,7 @@ import SwiftUI
 struct MediApp: App {
     @StateObject private var meditationManager = MeditationManager()
     @StateObject private var authManager = AuthManager()
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     
     var body: some Scene {
         WindowGroup {
@@ -11,10 +12,12 @@ struct MediApp: App {
                 ContentView_Main()
                     .environmentObject(meditationManager)
                     .environmentObject(authManager)
+                    .environmentObject(subscriptionManager)
                     .preferredColorScheme(.light)
             } else {
                 SignInView()
                     .environmentObject(authManager)
+                    .environmentObject(subscriptionManager)
                     .preferredColorScheme(.light)
             }
         }

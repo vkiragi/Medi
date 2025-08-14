@@ -4,9 +4,11 @@ import medi
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var meditationManager: MeditationManager
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var showingEditProfile = false
     @State private var showingDataExport = false
     @State private var showingDeleteAccount = false
+    @State private var showingPaywall = false
     
     var body: some View {
         NavigationView {
@@ -69,13 +71,25 @@ struct ProfileView: View {
                                 
                                 // Account status
                                 HStack(spacing: 8) {
-                                    Image(systemName: authManager.userID?.starts(with: "anonymous") == true ? "person.crop.circle.badge.exclamationmark" : "checkmark.seal.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(authManager.userID?.starts(with: "anonymous") == true ? .orange : .green)
-                                    
-                                    Text(authManager.userID?.starts(with: "anonymous") == true ? "Anonymous Account" : "Apple ID Connected")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(authManager.userID?.starts(with: "anonymous") == true ? .orange : .green)
+                                    if subscriptionManager.isSubscribed {
+                                        Image(systemName: "crown.fill")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.yellow)
+                                        Text("Premium Active")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(.yellow)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color.yellow.opacity(0.15))
+                                            .cornerRadius(8)
+                                    } else {
+                                        Image(systemName: "person.crop.circle.badge.exclamationmark")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.orange)
+                                        Text("Free Tier")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(.orange)
+                                    }
                                 }
                                 .padding(.top, 5)
                             }
@@ -277,6 +291,87 @@ struct ProfileView: View {
                             .padding(.horizontal, 20)
                         }
                         
+                        // Settings
+                        VStack(spacing: 12) {
+                            if !subscriptionManager.isSubscribed {
+                                // Subscription
+                                Button(action: { showingPaywall = true }) {
+                                    HStack {
+                                        Image(systemName: "crown.fill")
+                                            .foregroundColor(.yellow)
+                                        Text("Get medi Premium")
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .padding()
+                                    .background(Color.white)
+                                    .cornerRadius(12)
+                                    .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
+                                }
+                            }
+                            
+                            // AI Plan - View/Create
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("AI Plan")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                NavigationLink(destination: PlanDetailView()) {
+                                    HStack {
+                                        Image(systemName: "list.bullet.rectangle.portrait")
+                                        Text("View Saved Plan")
+                                        Spacer()
+                                        Image(systemName: "chevron.right").foregroundColor(.secondary)
+                                    }
+                                }
+                                if subscriptionManager.isSubscribed {
+                                    NavigationLink(destination: PlanCreationView()) {
+                                        HStack {
+                                            Image(systemName: "wand.and.stars")
+                                            Text("Create New Plan")
+                                            Spacer()
+                                            Image(systemName: "chevron.right").foregroundColor(.secondary)
+                                        }
+                                    }
+                                } else {
+                                    Button(action: { showingPaywall = true }) {
+                                        HStack {
+                                            Image(systemName: "wand.and.stars")
+                                                .foregroundColor(.yellow)
+                                            Text("Create New Plan (Premium)")
+                                            Spacer()
+                                            Image(systemName: "chevron.right").foregroundColor(.secondary)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(12)
+                            .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
+                            
+                            // Developer tools (DEBUG only)
+                            #if DEBUG
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Developer")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Toggle(isOn: Binding(
+                                    get: { subscriptionManager.isDevForced },
+                                    set: { subscriptionManager.setDevForcePremium($0) }
+                                )) {
+                                    Text("Force Premium")
+                                }
+                            }
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(12)
+                            .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
+                            #endif
+                        }
+                        .padding(.horizontal, 20)
+                        
                         // Sign Out / Delete Account
                         VStack(spacing: 15) {
                             if authManager.userID?.starts(with: "anonymous") == false {
@@ -327,6 +422,9 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showingDataExport) {
             DataExportView()
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
         }
         .alert("Delete Account", isPresented: $showingDeleteAccount) {
             Button("Cancel", role: .cancel) { }

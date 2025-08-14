@@ -2,8 +2,10 @@ import SwiftUI
 
 struct MoodInsightsView: View {
     @EnvironmentObject var meditationManager: MeditationManager
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var insights: MoodInsights?
     @State private var selectedTimeframe: TimeFrame = .all
+    @State private var showingPaywall: Bool = false
     
     enum TimeFrame: String, CaseIterable {
         case week = "7 Days"
@@ -40,6 +42,30 @@ struct MoodInsightsView: View {
                                 .foregroundColor(Color(red: 0.2, green: 0.2, blue: 0.4))
                         }
                         .padding(.top, 20)
+                        
+                        if !subscriptionManager.isSubscribed {
+                            Button(action: { showingPaywall = true }) {
+                                HStack(alignment: .center, spacing: 12) {
+                                    Image(systemName: "crown.fill")
+                                        .foregroundColor(.yellow)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Unlock AI tips and deeper insights")
+                                            .font(.headline)
+                                        Text("Get medi Premium for personalized analysis")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(12)
+                                .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 1)
+                            }
+                            .padding(.horizontal, 20)
+                        }
                         
                         if let insights = insights {
                             // Timeframe Picker
@@ -87,25 +113,27 @@ struct MoodInsightsView: View {
                             }
                             .padding(.horizontal, 20)
                             
-                            // AI Personalized Tip
-                            VStack(spacing: 15) {
-                                HStack {
-                                    Text("🤖 AI Personal Tip")
-                                        .font(.headline)
-                                        .fontWeight(.semibold)
-                                    Spacer()
+                            if subscriptionManager.isSubscribed {
+                                // AI Personalized Tip (Premium)
+                                VStack(spacing: 15) {
+                                    HStack {
+                                        Text("🤖 AI Personal Tip")
+                                            .font(.headline)
+                                            .fontWeight(.semibold)
+                                        Spacer()
+                                    }
+                                    
+                                    Text(insights.personalizedTip)
+                                        .font(.body)
+                                        .foregroundColor(.secondary)
+                                        .padding(15)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(Color.white.opacity(0.8))
+                                        )
                                 }
-                                
-                                Text(insights.personalizedTip)
-                                    .font(.body)
-                                    .foregroundColor(.secondary)
-                                    .padding(15)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.white.opacity(0.8))
-                                    )
+                                .padding(.horizontal, 20)
                             }
-                            .padding(.horizontal, 20)
                             
                             // Mood Frequency Chart
                             if !insights.moodFrequency.isEmpty {
@@ -164,6 +192,7 @@ struct MoodInsightsView: View {
         .onChange(of: selectedTimeframe) { _ in
             generateInsights()
         }
+        .sheet(isPresented: $showingPaywall) { PaywallView() }
     }
     
     private func generateInsights() {
