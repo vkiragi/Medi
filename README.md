@@ -9,7 +9,7 @@ A beautiful, minimalist meditation app built with SwiftUI for iOS.
 ## ✨ Features
 
 - **Timer Meditation**: Choose from preset durations (5, 10, 15, 20 minutes)
-- **Guided Meditations**: Ready for content (placeholder system in place)
+- **Meditations**: 20 ambient soundscapes across 5 categories
 - **Breathing Animation**: Visual breathing guide that synchronizes with meditation
 - **Session Tracking**: Keep track of meditation history and progress
 - **Progress Stats**: View total sessions, minutes meditated, and current streak
@@ -83,10 +83,10 @@ medi-app/
    - Follow the breathing circle animation
    - Use pause/resume as needed
 
-2. **Guided Meditation**:
-   - System ready for guided content
-   - Placeholder interface available
-   - Will support audio playback when content is added
+2. **Meditations**:
+   - 20 ambient soundscapes across 5 categories
+   - Morning Calm, Stress Relief, Deep Sleep, Focus & Clarity, Gratitude Practice
+   - Tap any meditation to start ambient audio playback
 
 3. **Track Progress**:
    - View your meditation history in the History tab

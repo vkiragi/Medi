@@ -45,7 +45,7 @@ struct ContentView_Main: View {
             
             GuidedMeditationListView()
                 .tabItem {
-                    Label("Guided", systemImage: "waveform.circle.fill")
+                    Label("Meditations", systemImage: "waveform.circle.fill")
                 }
                 .tag(1)
             
