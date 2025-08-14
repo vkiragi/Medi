@@ -2,49 +2,8 @@ import SwiftUI
 
 struct GuidedMeditationListView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
-    // Sample guided meditations using existing audio files
-    let guidedMeditations = [
-        GuidedMeditation(
-            id: "1",
-            title: "Morning Calm",
-            description: "Start your day with a peaceful meditation",
-            duration: 3,
-            imageColor: Color(red: 0.4, green: 0.7, blue: 0.9),
-            audioFileName: "breathing_meditation"
-        ),
-        GuidedMeditation(
-            id: "2",
-            title: "Stress Relief",
-            description: "Release tension and find your center",
-            duration: 5,
-            imageColor: Color(red: 0.8, green: 0.6, blue: 0.9),
-            audioFileName: "meditation_5min_marc"
-        ),
-        GuidedMeditation(
-            id: "3",
-            title: "Deep Sleep",
-            description: "Prepare your mind and body for restful sleep",
-            duration: 5,
-            imageColor: Color(red: 0.4, green: 0.5, blue: 0.8),
-            audioFileName: "meditation_5min_life_happens"
-        ),
-        GuidedMeditation(
-            id: "4",
-            title: "Focus & Clarity",
-            description: "Sharpen your mind for better concentration",
-            duration: 6,
-            imageColor: Color(red: 0.5, green: 0.8, blue: 0.7),
-            audioFileName: "meditation_6min_stillmind"
-        ),
-        GuidedMeditation(
-            id: "5",
-            title: "Gratitude Practice",
-            description: "Cultivate appreciation and positivity",
-            duration: 10,
-            imageColor: Color(red: 0.9, green: 0.7, blue: 0.5),
-            audioFileName: "meditation_10min_breathing"
-        )
-    ]
+    // Placeholder - no guided meditations available yet
+    let guidedMeditations: [GuidedMeditation] = []
     
     @State private var selectedCategory = "All"
     @State private var showingPaywall = false

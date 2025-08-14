@@ -1,12 +1,7 @@
-Place your guided meditation audio files here:
+This directory is ready for guided meditation audio files.
 
-meditation_1.mp3 - Morning Calm meditation
-meditation_2.mp3 - Stress Relief meditation
-meditation_3.mp3 - Deep Sleep meditation
-meditation_4.mp3 - Focus & Clarity meditation
-meditation_5.mp3 - Gratitude Practice meditation
-
-Add these files in Xcode:
+When you add audio files:
 1. Drag and drop your audio files into this "Audio" folder in Xcode
 2. Make sure "Copy items if needed" is checked
-3. Ensure "Add to targets: medi" is selected 
+3. Ensure "Add to targets: medi" is selected
+4. Update GuidedMeditationListView.swift to reference the new files 

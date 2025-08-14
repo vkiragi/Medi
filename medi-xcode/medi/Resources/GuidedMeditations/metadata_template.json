@@ -1,0 +1,88 @@
+{
+  "meditations": [
+    {
+      "id": "morning_breath_5min",
+      "title": "Morning Breath Awareness",
+      "description": "Start your day with gentle breath awareness",
+      "category": "Morning Calm",
+      "duration": 5,
+      "audioFileName": "morning_breath_awareness_5min",
+      "imageColor": {
+        "red": 0.4,
+        "green": 0.7,
+        "blue": 0.9
+      },
+      "tags": ["morning", "breath", "awareness"],
+      "difficulty": "beginner",
+      "isPremium": false,
+      "license": {
+        "type": "original",
+        "attribution": null,
+        "notes": "Commissioned original content"
+      }
+    },
+    {
+      "id": "stress_body_scan_10min",
+      "title": "Stress Relief Body Scan",
+      "description": "Release tension with guided body awareness",
+      "category": "Stress Relief",
+      "duration": 10,
+      "audioFileName": "stress_body_scan_10min",
+      "imageColor": {
+        "red": 0.8,
+        "green": 0.6,
+        "blue": 0.9
+      },
+      "tags": ["stress", "body scan", "tension"],
+      "difficulty": "intermediate",
+      "isPremium": true,
+      "license": {
+        "type": "tts_generated",
+        "attribution": "Generated with ElevenLabs TTS",
+        "notes": "Commercial license verified"
+      }
+    }
+  ],
+  "categories": {
+    "Morning Calm": {
+      "description": "Peaceful start-of-day practices",
+      "color": {
+        "red": 0.4,
+        "green": 0.7,
+        "blue": 0.9
+      }
+    },
+    "Stress Relief": {
+      "description": "Tension release and anxiety management",
+      "color": {
+        "red": 0.8,
+        "green": 0.6,
+        "blue": 0.9
+      }
+    },
+    "Deep Sleep": {
+      "description": "Sleep preparation and relaxation",
+      "color": {
+        "red": 0.4,
+        "green": 0.5,
+        "blue": 0.8
+      }
+    },
+    "Focus and Clarity": {
+      "description": "Concentration and mental clarity",
+      "color": {
+        "red": 0.5,
+        "green": 0.8,
+        "blue": 0.7
+      }
+    },
+    "Gratitude Practice": {
+      "description": "Appreciation and positive emotions",
+      "color": {
+        "red": 0.9,
+        "green": 0.7,
+        "blue": 0.5
+      }
+    }
+  }
+}

@@ -1,28 +1,27 @@
-# Guided Meditation Audio Files
+# Guided Meditation Resources
 
-This directory contains the audio files used for guided meditations in the app.
+This directory is prepared for guided meditation content.
 
-## Audio Files Naming Convention
+## Adding Audio Files
 
-The app looks for audio files with these names:
+When you're ready to add guided meditation audio files:
 
-1. `meditation_1.mp3` - Morning Calm meditation
-2. `meditation_2.mp3` - Stress Relief meditation
-3. `meditation_3.mp3` - Deep Sleep meditation
-4. `meditation_4.mp3` - Focus & Clarity meditation
-5. `meditation_5.mp3` - Gratitude Practice meditation
-
-## Audio File Locations
-
-Your audio files should be placed in one of these locations:
-- Directly in the Resources directory
-- In the Resources/Audio directory (preferred)
+1. Place audio files in the `Audio/` subdirectory
+2. Update `GuidedMeditationListView.swift` to reference the new files
+3. Ensure proper licensing for commercial use
 
 ## Including Audio Files in the App Bundle
 
-To ensure these files are included in the app bundle:
+To include audio files in the app bundle:
 1. In Xcode, select the project in the navigator
 2. Select the "medi" target
 3. Go to "Build Phases" tab
 4. Expand "Copy Bundle Resources"
-5. Verify your audio files are listed there 
+5. Verify your audio files are listed there
+
+## Licensing Requirements
+
+For App Store distribution, ensure all audio content:
+- Has proper commercial use licensing
+- Includes appropriate attribution if required
+- Complies with copyright requirements 

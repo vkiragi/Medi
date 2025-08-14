@@ -9,13 +9,7 @@ A beautiful, minimalist meditation app built with SwiftUI for iOS.
 ## ✨ Features
 
 - **Timer Meditation**: Choose from preset durations (5, 10, 15, 20 minutes)
-- **Guided Meditations**: 6 different guided sessions (3-10 minutes)
-  - 3-Minute Breathing - Gentle introduction
-  - Life Happens Breathing (5 min) - For stressful moments
-  - MARC Breathing (5 min) - Mindfulness-based practice
-  - Still Mind Breath Awareness (6 min) - Cultivating awareness
-  - 10-Minute Breathing - Extended session
-  - Padraig's Mindfulness (10 min) - Mindfulness of breathing
+- **Guided Meditations**: Ready for content (placeholder system in place)
 - **Breathing Animation**: Visual breathing guide that synchronizes with meditation
 - **Session Tracking**: Keep track of meditation history and progress
 - **Progress Stats**: View total sessions, minutes meditated, and current streak
@@ -76,7 +70,7 @@ medi-app/
 │       │   ├── GuidedMeditationListView.swift
 │       │   ├── GuidedMeditationPlayerView.swift
 │       │   └── HistoryView.swift          # Session history
-│       └── *.mp3                          # Guided meditation audio files
+│       └── Resources/                     # Ready for meditation content
 ├── README.md
 └── setup scripts
 ```
@@ -90,10 +84,9 @@ medi-app/
    - Use pause/resume as needed
 
 2. **Guided Meditation**:
-   - Browse available guided sessions
-   - Tap a session to open the player
-   - Press play to start the guided meditation
-   - Follow along with the breathing circle
+   - System ready for guided content
+   - Placeholder interface available
+   - Will support audio playback when content is added
 
 3. **Track Progress**:
    - View your meditation history in the History tab
@@ -111,7 +104,7 @@ The app follows a minimalist design approach with:
 ## 🔧 Technical Details
 
 - **Architecture**: MVVM pattern with SwiftUI
-- **Audio**: AVFoundation for guided meditation playback
+- **Audio**: AVFoundation ready for guided meditation playback
 - **Data Persistence**: UserDefaults for session history
 - **Animations**: SwiftUI animations for breathing guidance
 - **Navigation**: Tab-based interface with NavigationView
