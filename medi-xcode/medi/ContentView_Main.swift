@@ -43,29 +43,25 @@ struct ContentView_Main: View {
             }
             .tag(0)
             
-            GuidedMeditationListView()
-                .tabItem {
-                    Label("Meditations", systemImage: "waveform.circle.fill")
-                }
-                .tag(1)
+
             
             HistoryView()
                 .tabItem {
                     Label("History", systemImage: "clock.fill")
                 }
-                .tag(2)
+                .tag(1)
             
             ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
-                .tag(3)
+                .tag(2)
             
             MoodInsightsView()
                 .tabItem {
                     Label("Insights", systemImage: "brain.head.profile")
                 }
-                .tag(4)
+                .tag(3)
         }
         .accentColor(.purple)
         .sheet(isPresented: $showingMoodCheckIn) {
