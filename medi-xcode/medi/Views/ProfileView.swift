@@ -13,9 +13,17 @@ struct ProfileView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background
-                Color(red: 0.95, green: 0.95, blue: 1.0)
-                    .ignoresSafeArea()
+                // Quyo-style purple gradient background
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.4, green: 0.2, blue: 0.8),  // Deep purple
+                        Color(red: 0.6, green: 0.3, blue: 0.9),  // Medium purple
+                        Color(red: 0.8, green: 0.4, blue: 1.0)   // Light purple
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 25) {
@@ -47,7 +55,7 @@ struct ProfileView: View {
                             VStack(spacing: 5) {
                                 Text(getDisplayName())
                                     .font(.system(size: 24, weight: .medium))
-                                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                                    .foregroundColor(.white)
                                 
                                 // Show prompt to set custom name if using fallback
                                 if shouldShowNamePrompt() {
@@ -62,11 +70,11 @@ struct ProfileView: View {
                                 if let email = authManager.userEmail {
                                     Text(email)
                                         .font(.system(size: 16, weight: .light))
-                                        .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                                        .foregroundColor(.white.opacity(0.8))
                                 } else if authManager.userID?.starts(with: "anonymous") == true {
                                     Text("Anonymous User")
                                         .font(.system(size: 16, weight: .light))
-                                        .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                                        .foregroundColor(.white.opacity(0.8))
                                 }
                                 
                                 // Account status
@@ -101,7 +109,7 @@ struct ProfileView: View {
                             HStack {
                                 Text("Meditation Journey")
                                     .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                                    .foregroundColor(.white)
                                 
                                 Spacer()
                                 
@@ -120,11 +128,11 @@ struct ProfileView: View {
                                         
                                         Text(meditationManager.isSyncing ? "Syncing..." : "Cloud")
                                             .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                                            .foregroundColor(.white)
                                     }
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
-                                    .background(Color(red: 0.6, green: 0.7, blue: 0.9).opacity(0.1))
+                                    .background(Color.white.opacity(0.15))
                                     .cornerRadius(8)
                                 }
                             }
@@ -155,7 +163,7 @@ struct ProfileView: View {
                                 HStack {
                                     Text("Last synced: \(formatLastSync(lastSync))")
                                         .font(.system(size: 12, weight: .light))
-                                        .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                                        .foregroundColor(.white.opacity(0.7))
                                     
                                     Spacer()
                                     
@@ -178,7 +186,7 @@ struct ProfileView: View {
                             VStack(spacing: 20) {
                                 Text("Mood Tracking")
                                     .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                                    .foregroundColor(.white)
                                 
                                 VStack(spacing: 15) {
                                     HStack(spacing: 15) {
@@ -560,22 +568,22 @@ struct StatCard: View {
             HStack(spacing: 6) {
                 Image(systemName: icon)
                     .font(.system(size: 16))
-                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                    .foregroundColor(.white)
                 
                 Text(value)
                     .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                    .foregroundColor(.white)
             }
             
             Text(label)
                 .font(.system(size: 12, weight: .light))
-                .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                .foregroundColor(.white.opacity(0.8))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
-        .background(Color.white)
+        .background(Color.white.opacity(0.15))
         .cornerRadius(15)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
     }
 }
 
@@ -594,18 +602,18 @@ struct SettingsRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                    .foregroundColor(.white)
                 
                 Text(subtitle)
                     .font(.system(size: 14, weight: .light))
-                    .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                    .foregroundColor(.white.opacity(0.7))
             }
             
             Spacer()
             
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.7))
+                .foregroundColor(.white.opacity(0.6))
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 15)

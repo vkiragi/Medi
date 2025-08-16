@@ -9,9 +9,17 @@ struct HistoryView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background
-                Color(red: 0.95, green: 0.95, blue: 1.0)
-                    .ignoresSafeArea()
+                // Quyo-style purple gradient background
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.4, green: 0.2, blue: 0.8),  // Deep purple
+                        Color(red: 0.6, green: 0.3, blue: 0.9),  // Medium purple
+                        Color(red: 0.8, green: 0.4, blue: 1.0)   // Light purple
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
                 
                 if meditationManager.completedSessions.isEmpty && !meditationManager.isSyncing {
                     // Empty state
@@ -22,11 +30,11 @@ struct HistoryView: View {
                         
                         Text("No sessions yet")
                             .font(.system(size: 22, weight: .medium))
-                            .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.5))
+                            .foregroundColor(.white)
                         
                         Text("Complete your first meditation to see it here")
                             .font(.system(size: 16, weight: .light))
-                            .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                            .foregroundColor(.white.opacity(0.8))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 40)
                         
@@ -65,12 +73,12 @@ struct HistoryView: View {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(meditationManager.isSyncing ? "Syncing..." : "Cloud Sync")
                                             .font(.system(size: 14, weight: .medium))
-                                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                                            .foregroundColor(.white)
                                         
                                         if let status = meditationManager.syncStatus {
                                             Text(status)
                                                 .font(.system(size: 12, weight: .light))
-                                                .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                                                .foregroundColor(.white.opacity(0.8))
                                         }
                                     }
                                     
@@ -91,14 +99,18 @@ struct HistoryView: View {
                         
                         // Group by month
                         ForEach(groupedSessions.keys.sorted(by: >), id: \.self) { month in
-                            Section(header: Text(month)) {
+                            Section(header: Text(month)
+                                .foregroundColor(.white)
+                                .font(.system(size: 16, weight: .semibold))) {
                                 ForEach(groupedSessions[month]!) { session in
                                     SessionCard(session: session)
                                 }
                             }
                         }
                     }
-                    .listStyle(InsetGroupedListStyle())
+                    .listStyle(PlainListStyle())
+                    .background(Color.clear)
+                    .scrollContentBackground(.hidden)
                     .refreshable {
                         await refreshData()
                     }
@@ -158,9 +170,9 @@ struct SessionCard: View {
             // Icon - different for completed vs partial
             Image(systemName: session.completed ? "leaf.fill" : "leaf")
                 .font(.system(size: 24))
-                .foregroundColor(session.completed ? Color(red: 0.6, green: 0.7, blue: 0.9) : Color(red: 0.7, green: 0.7, blue: 0.8))
+                .foregroundColor(.white)
                 .frame(width: 40, height: 40)
-                .background((session.completed ? Color(red: 0.6, green: 0.7, blue: 0.9) : Color(red: 0.7, green: 0.7, blue: 0.8)).opacity(0.2))
+                .background(Color.black.opacity(0.3))
                 .clipShape(Circle())
             
             // Session details
@@ -168,18 +180,18 @@ struct SessionCard: View {
                 HStack {
                     Text(formattedDate)
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                        .foregroundColor(.white)
                     
                     if !session.completed {
                         Text("(partial)")
                             .font(.system(size: 12, weight: .light))
-                            .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.7))
+                            .foregroundColor(.white.opacity(0.7))
                     }
                 }
                 
                 Text("\(Int(session.duration / 60)) minutes")
                     .font(.system(size: 14, weight: .light))
-                    .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                    .foregroundColor(.white.opacity(0.8))
             }
             
             Spacer()
@@ -188,14 +200,19 @@ struct SessionCard: View {
             if session.completed {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 24))
-                    .foregroundColor(Color(red: 0.4, green: 0.8, blue: 0.4))
+                    .foregroundColor(.green)
             } else {
                 Image(systemName: "clock.circle")
                     .font(.system(size: 24))
-                    .foregroundColor(Color(red: 0.8, green: 0.6, blue: 0.4))
+                    .foregroundColor(.orange)
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(Color.black.opacity(0.2))
+        .cornerRadius(12)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 4)
     }
     
     private var formattedDate: String {

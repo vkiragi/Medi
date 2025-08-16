@@ -1,23 +1,29 @@
 import SwiftUI
 
 enum MeditationMode: String, CaseIterable {
-    case relax = "Relax"
-    case anxiety = "Anxiety"
-    case sleep = "Sleep"
+    case stressRelief = "Stress Relief"
+    case focusClarity = "Focus & Clarity"
+    case deepSleep = "Deep Sleep"
+    case gratitudePractice = "Gratitude Practice"
+    case morningCalm = "Morning Calm"
     
     var icon: String {
         switch self {
-        case .relax: return "leaf.fill"
-        case .anxiety: return "heart.fill"
-        case .sleep: return "moon.fill"
+        case .stressRelief: return "leaf.fill"
+        case .focusClarity: return "brain.head.profile"
+        case .deepSleep: return "moon.fill"
+        case .gratitudePractice: return "heart.fill"
+        case .morningCalm: return "sunrise.fill"
         }
     }
     
     var color: Color {
         switch self {
-        case .relax: return Color.green
-        case .anxiety: return Color.orange
-        case .sleep: return Color.blue
+        case .stressRelief: return Color.green
+        case .focusClarity: return Color.blue
+        case .deepSleep: return Color.indigo
+        case .gratitudePractice: return Color.pink
+        case .morningCalm: return Color.orange
         }
     }
 }
@@ -33,28 +39,44 @@ struct MeditationView: View {
     
     private var filteredMeditations: [GuidedMeditation] {
         switch selectedMode {
-        case .relax:
+        case .stressRelief:
             return guidedMeditations.filter { meditation in
-                meditation.title.contains("Peace") || 
                 meditation.title.contains("Stress") ||
                 meditation.title.contains("Relax") ||
+                meditation.title.contains("Peace") ||
                 meditation.title.contains("Nirvikalpa") ||
                 meditation.title.contains("Aberdeen")
             }
-        case .anxiety:
+        case .focusClarity:
             return guidedMeditations.filter { meditation in
                 meditation.title.contains("Focus") ||
                 meditation.title.contains("Clarity") ||
-                meditation.title.contains("Anxiety") ||
-                meditation.title.contains("Morning") ||
-                meditation.title.contains("Inner")
+                meditation.title.contains("Weightlessness") ||
+                meditation.title.contains("Zen") ||
+                meditation.title.contains("Ambient")
             }
-        case .sleep:
+        case .deepSleep:
             return guidedMeditations.filter { meditation in
                 meditation.title.contains("Sleep") ||
+                meditation.title.contains("Moon") ||
                 meditation.title.contains("Dream") ||
-                meditation.title.contains("Night") ||
-                meditation.title.contains("Sounds")
+                meditation.title.contains("Foetal") ||
+                meditation.title.contains("Night")
+            }
+        case .gratitudePractice:
+            return guidedMeditations.filter { meditation in
+                meditation.title.contains("Gratitude") ||
+                meditation.title.contains("Zen") ||
+                meditation.title.contains("Vedic") ||
+                meditation.title.contains("Solitude") ||
+                meditation.title.contains("Contemplation")
+            }
+        case .morningCalm:
+            return guidedMeditations.filter { meditation in
+                meditation.title.contains("Morning") ||
+                meditation.title.contains("Calm") ||
+                meditation.title.contains("Inner") ||
+                meditation.title.contains("Peace")
             }
         }
     }
@@ -113,7 +135,7 @@ struct MeditationView: View {
         return meditations
     }
     @EnvironmentObject var meditationManager: MeditationManager
-    @State private var selectedMode: MeditationMode = .relax
+    @State private var selectedMode: MeditationMode = .stressRelief
     @State private var showingGuidedMeditation = false
     @State private var selectedGuidedMeditation: GuidedMeditation?
     @State private var animationPhase: Double = 0.0
@@ -146,37 +168,40 @@ struct MeditationView: View {
                         .foregroundColor(.white.opacity(0.8))
                         .tracking(2)
                     
-                    HStack(spacing: 16) {
-                        ForEach(MeditationMode.allCases, id: \.self) { mode in
-                            Button(action: {
-                                selectedMode = mode
-                            }) {
-                                VStack(spacing: 8) {
-                                    Image(systemName: mode.icon)
-                                        .font(.system(size: 24, weight: .medium))
-                                        .foregroundColor(selectedMode == mode ? .white : .white.opacity(0.6))
-                                    
-                                    Text(mode.rawValue)
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(selectedMode == mode ? .white : .white.opacity(0.6))
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(MeditationMode.allCases, id: \.self) { mode in
+                                Button(action: {
+                                    selectedMode = mode
+                                }) {
+                                    VStack(spacing: 8) {
+                                        Image(systemName: mode.icon)
+                                            .font(.system(size: 24, weight: .medium))
+                                            .foregroundColor(selectedMode == mode ? .white : .white.opacity(0.6))
+                                        
+                                        Text(mode.rawValue)
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(selectedMode == mode ? .white : .white.opacity(0.6))
+                                    }
+                                    .frame(width: 100, height: 80)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(selectedMode == mode ? 
+                                                  mode.color.opacity(0.3) : 
+                                                  Color.white.opacity(0.1))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(selectedMode == mode ? 
+                                                   mode.color.opacity(0.5) : 
+                                                   Color.clear, lineWidth: 1)
+                                    )
                                 }
-                                .frame(width: 100, height: 80)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .fill(selectedMode == mode ? 
-                                              mode.color.opacity(0.3) : 
-                                              Color.white.opacity(0.1))
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .stroke(selectedMode == mode ? 
-                                               mode.color.opacity(0.5) : 
-                                               Color.clear, lineWidth: 1)
-                                )
+                                .scaleEffect(selectedMode == mode ? 1.05 : 1.0)
+                                .animation(.easeInOut(duration: 0.2), value: selectedMode)
                             }
-                            .scaleEffect(selectedMode == mode ? 1.05 : 1.0)
-                            .animation(.easeInOut(duration: 0.2), value: selectedMode)
                         }
+                        .padding(.horizontal, 20)
                     }
                 }
                 .padding(.horizontal, 20)

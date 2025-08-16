@@ -18,11 +18,12 @@ struct MoodInsightsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background gradient
+                // Quyo-style purple gradient background
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(red: 0.95, green: 0.95, blue: 1.0),
-                        Color(red: 0.85, green: 0.85, blue: 0.95)
+                        Color(red: 0.4, green: 0.2, blue: 0.8),  // Deep purple
+                        Color(red: 0.6, green: 0.3, blue: 0.9),  // Medium purple
+                        Color(red: 0.8, green: 0.4, blue: 1.0)   // Light purple
                     ]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -39,7 +40,7 @@ struct MoodInsightsView: View {
                             Text("Mood Insights")
                                 .font(.title)
                                 .fontWeight(.bold)
-                                .foregroundColor(Color(red: 0.2, green: 0.2, blue: 0.4))
+                                .foregroundColor(.white)
                         }
                         .padding(.top, 20)
                         
@@ -117,19 +118,20 @@ struct MoodInsightsView: View {
                                 // AI Personalized Tip (Premium)
                                 VStack(spacing: 15) {
                                     HStack {
-                                        Text("🤖 AI Personal Tip")
-                                            .font(.headline)
-                                            .fontWeight(.semibold)
+                                                                            Text("🤖 AI Personal Tip")
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
                                         Spacer()
                                     }
                                     
                                     Text(insights.personalizedTip)
                                         .font(.body)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.white.opacity(0.9))
                                         .padding(15)
                                         .background(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.white.opacity(0.8))
+                                                .fill(Color.white.opacity(0.15))
                                         )
                                 }
                                 .padding(.horizontal, 20)
@@ -139,9 +141,10 @@ struct MoodInsightsView: View {
                             if !insights.moodFrequency.isEmpty {
                                 VStack(spacing: 15) {
                                     HStack {
-                                        Text("📊 Mood Distribution")
-                                            .font(.headline)
-                                            .fontWeight(.semibold)
+                                                                            Text("📊 Mood Distribution")
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
                                         Spacer()
                                     }
                                     
@@ -153,7 +156,7 @@ struct MoodInsightsView: View {
                                     .padding(15)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.white.opacity(0.8))
+                                            .fill(Color.white.opacity(0.15))
                                     )
                                 }
                                 .padding(.horizontal, 20)
@@ -168,11 +171,11 @@ struct MoodInsightsView: View {
                                 Text("Start Your Mood Journey")
                                     .font(.title2)
                                     .fontWeight(.semibold)
-                                    .foregroundColor(Color(red: 0.2, green: 0.2, blue: 0.4))
+                                    .foregroundColor(.white)
                                 
                                 Text("Use the mood check-in feature to track your emotional wellness and get personalized insights.")
                                     .font(.body)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.white.opacity(0.8))
                                     .multilineTextAlignment(.center)
                                     .padding(.horizontal, 40)
                             }
@@ -258,21 +261,21 @@ struct InsightCard: View {
         VStack(spacing: 10) {
             Text(title)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(.white.opacity(0.8))
                 .multilineTextAlignment(.center)
             
             Text(value)
                 .font(.headline)
                 .fontWeight(.bold)
-                .foregroundColor(color)
+                .foregroundColor(.white)
                 .multilineTextAlignment(.center)
         }
         .frame(height: 80)
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.8))
-                .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1)
+                .fill(Color.white.opacity(0.15))
+                .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 1)
         )
     }
 }
