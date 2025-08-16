@@ -19,5 +19,8 @@ struct ContentView_Main: View {
                 .tag(1)
         }
         .accentColor(.purple)
+        .toolbar(.visible, for: .tabBar)
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar) // matches the blur
+        .toolbarColorScheme(.light, for: .tabBar)
     }
 }

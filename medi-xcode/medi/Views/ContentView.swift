@@ -6,7 +6,7 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            MeditationView()
+            HomeView()
                 .tabItem {
                     Label("Meditate", systemImage: "leaf.fill")
                 }
@@ -19,6 +19,9 @@ struct ContentView: View {
                 .tag(1)
         }
         .accentColor(Color("AccentColor"))
+        .toolbar(.visible, for: .tabBar)
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar) // matches the blur
+        .toolbarColorScheme(.light, for: .tabBar)
     }
 }
 
@@ -27,4 +30,4 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
             .environmentObject(MeditationManager())
     }
-} 
+}

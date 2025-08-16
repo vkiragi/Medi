@@ -12,23 +12,35 @@ public struct ProfileView: View {
     public var body: some View {
         NavigationView {
             ZStack {
-                // Background
-                Color(red: 0.95, green: 0.95, blue: 1.0)
-                    .ignoresSafeArea()
+                // Quyo-style purple gradient background
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.4, green: 0.2, blue: 0.8),  // Deep purple
+                        Color(red: 0.6, green: 0.3, blue: 0.9),  // Medium purple
+                        Color(red: 0.8, green: 0.4, blue: 1.0)   // Light purple
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea(.all, edges: .all)
                 
                 ScrollView {
                     VStack(spacing: 25) {
+                        // Custom App Title
+                        AppTitle("Profile")
+                            .padding(.top, 60)
+                        
                         // Profile Header
                         VStack(spacing: 15) {
                             // Avatar with edit button
                             ZStack {
                                 Circle()
-                                    .fill(Color(red: 0.6, green: 0.7, blue: 0.9).opacity(0.2))
+                                    .fill(Color.white.opacity(0.15))
                                     .frame(width: 100, height: 100)
                                 
                                 Image(systemName: "person.fill")
                                     .font(.system(size: 50))
-                                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                                    .foregroundColor(.white)
                                 
                                 // Edit button
                                 Button(action: {
@@ -37,7 +49,7 @@ public struct ProfileView: View {
                                     Image(systemName: "pencil.circle.fill")
                                         .font(.system(size: 24))
                                         .foregroundColor(.white)
-                                        .background(Color(red: 0.6, green: 0.7, blue: 0.9))
+                                        .background(Color.white.opacity(0.12))
                                         .clipShape(Circle())
                                 }
                                 .offset(x: 35, y: 35)
@@ -46,7 +58,7 @@ public struct ProfileView: View {
                             VStack(spacing: 5) {
                                 Text(getDisplayName())
                                     .font(.system(size: 24, weight: .medium))
-                                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                                    .foregroundColor(.white)
                                 
                                 // Show prompt to set custom name if using fallback
                                 if shouldShowNamePrompt() {
@@ -54,29 +66,29 @@ public struct ProfileView: View {
                                         showingEditProfile = true
                                     }
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                                    .foregroundColor(.white.opacity(0.8))
                                     .padding(.top, 5)
                                 }
                                 
                                 if let email = authManager.userEmail {
                                     Text(email)
                                         .font(.system(size: 16, weight: .light))
-                                        .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                                        .foregroundColor(.white.opacity(0.8))
                                 } else if authManager.userID?.starts(with: "anonymous") == true {
                                     Text("Anonymous User")
                                         .font(.system(size: 16, weight: .light))
-                                        .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                                        .foregroundColor(.white.opacity(0.8))
                                 }
                                 
                                 // Account status
                                 HStack(spacing: 8) {
                                     Image(systemName: authManager.userID?.starts(with: "anonymous") == true ? "person.crop.circle.badge.exclamationmark" : "checkmark.seal.fill")
                                         .font(.system(size: 14))
-                                        .foregroundColor(authManager.userID?.starts(with: "anonymous") == true ? .orange : .green)
+                                        .foregroundColor(authManager.userID?.starts(with: "anonymous") == true ? .white.opacity(0.8) : .white)
                                     
                                     Text(authManager.userID?.starts(with: "anonymous") == true ? "Anonymous Account" : "Apple ID Connected")
                                         .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(authManager.userID?.starts(with: "anonymous") == true ? .orange : .green)
+                                        .foregroundColor(authManager.userID?.starts(with: "anonymous") == true ? .white.opacity(0.8) : .white)
                                 }
                                 .padding(.top, 5)
                             }
@@ -86,8 +98,8 @@ public struct ProfileView: View {
                         // Meditation Stats
                         VStack(spacing: 20) {
                             Text("Meditation Journey")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.white)
                             
                             HStack(spacing: 15) {
                                 StatCard(
@@ -111,61 +123,11 @@ public struct ProfileView: View {
                         }
                         .padding(.horizontal, 20)
                         
-                        // Mood Tracking Stats
-                        if !meditationManager.moodSessions.isEmpty {
-                            VStack(spacing: 20) {
-                                Text("Mood Tracking")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
-                                
-                                VStack(spacing: 15) {
-                                    HStack(spacing: 15) {
-                                        StatCard(
-                                            value: "\(meditationManager.moodSessions.count)",
-                                            label: "Check-ins",
-                                            icon: "brain.head.profile"
-                                        )
-                                        
-                                        StatCard(
-                                            value: "\(calculateMoodImprovementRate())%",
-                                            label: "Improvement",
-                                            icon: "chart.line.uptrend.xyaxis"
-                                        )
-                                    }
-                                    
-                                    // Most common mood
-                                    if let mostCommonMood = getMostCommonMood() {
-                                        HStack {
-                                            Text("Most Common Mood:")
-                                                .font(.system(size: 14, weight: .medium))
-                                                .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.5))
-                                            
-                                            Spacer()
-                                            
-                                            HStack(spacing: 8) {
-                                                Text(mostCommonMood.emoji)
-                                                    .font(.system(size: 20))
-                                                Text(mostCommonMood.rawValue)
-                                                    .font(.system(size: 14, weight: .medium))
-                                                    .foregroundColor(mostCommonMood.color)
-                                            }
-                                        }
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 12)
-                                        .background(Color.white)
-                                        .cornerRadius(12)
-                                        .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 20)
-                        }
-                        
                         // Account & Data Management
                         VStack(spacing: 15) {
                             Text("Account & Data")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 20)
                             
@@ -190,6 +152,7 @@ public struct ProfileView: View {
                                 }
                                 
                                 Divider()
+                                    .background(Color.white.opacity(0.12))
                                     .padding(.leading, 60)
                                 
                                 Button(action: {
@@ -203,6 +166,7 @@ public struct ProfileView: View {
                                 }
                                 
                                 Divider()
+                                    .background(Color.white.opacity(0.12))
                                     .padding(.leading, 60)
                                 
                                 NavigationLink(destination: Text("Notifications Settings")) {
@@ -214,6 +178,7 @@ public struct ProfileView: View {
                                 }
                                 
                                 Divider()
+                                    .background(Color.white.opacity(0.12))
                                     .padding(.leading, 60)
                                 
                                 NavigationLink(destination: Text("Help & Support")) {
@@ -224,8 +189,12 @@ public struct ProfileView: View {
                                     )
                                 }
                             }
-                            .background(Color.white)
-                            .cornerRadius(15)
+                            .background(Color.white.opacity(0.15))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                            )
+                            .cornerRadius(20)
                             .padding(.horizontal, 20)
                         }
                         
@@ -244,7 +213,11 @@ public struct ProfileView: View {
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 50)
-                                    .background(Color(red: 0.9, green: 0.5, blue: 0.5))
+                                    .background(Color.white.opacity(0.15))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 25)
+                                            .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                                    )
                                     .cornerRadius(25)
                                 }
                             }
@@ -261,18 +234,24 @@ public struct ProfileView: View {
                                 .foregroundColor(.red)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 50)
-                                .background(Color.red.opacity(0.1))
+                                .background(Color.red.opacity(0.15))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 25)
+                                        .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                                )
                                 .cornerRadius(25)
                             }
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 10)
                     }
-                    .padding(.bottom, 100)
+                    .padding(.bottom, 40) // ensure last content isn't jammed into the Tab Bar
                 }
             }
-            .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarHidden(true) // Hide default navigation bar
+            .onAppear {
+                // No-op for now, AppTitle handles its own navigation
+            }
         }
         .sheet(isPresented: $showingEditProfile) {
             EditProfileView()
@@ -312,20 +291,6 @@ public struct ProfileView: View {
         }
         
         return streak
-    }
-    
-    private func calculateMoodImprovementRate() -> Int {
-        let ratedSessions = meditationManager.moodSessions.filter { $0.postMoodRating != nil }
-        guard !ratedSessions.isEmpty else { return 0 }
-        
-        let improvedSessions = ratedSessions.filter { ($0.postMoodRating ?? 0) >= 4 }
-        return Int(Double(improvedSessions.count) / Double(ratedSessions.count) * 100)
-    }
-    
-    private func getMostCommonMood() -> MoodState? {
-        let moodCounts = Dictionary(grouping: meditationManager.moodSessions, by: { $0.mood })
-            .mapValues { $0.count }
-        return moodCounts.max(by: { $0.value < $1.value })?.key
     }
     
     private func shouldShowNamePrompt() -> Bool {
@@ -397,22 +362,25 @@ struct StatCard: View {
             HStack(spacing: 6) {
                 Image(systemName: icon)
                     .font(.system(size: 16))
-                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                    .foregroundColor(.white)
                 
                 Text(value)
                     .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                    .foregroundColor(.white)
             }
             
             Text(label)
                 .font(.system(size: 12, weight: .light))
-                .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                .foregroundColor(.white.opacity(0.8))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
-        .background(Color.white)
-        .cornerRadius(15)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .background(Color.white.opacity(0.15))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
+        .cornerRadius(20)
     }
 }
 
@@ -425,24 +393,24 @@ struct SettingsRow: View {
         HStack(spacing: 15) {
             Image(systemName: icon)
                 .font(.system(size: 20))
-                .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                .foregroundColor(.white)
                 .frame(width: 30)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                    .foregroundColor(.white)
                 
                 Text(subtitle)
                     .font(.system(size: 14, weight: .light))
-                    .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                    .foregroundColor(.white.opacity(0.7))
             }
             
             Spacer()
             
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.7))
+                .foregroundColor(.white.opacity(0.6))
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 15)
@@ -461,28 +429,41 @@ struct EditProfileView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 0.95, green: 0.95, blue: 1.0)
-                    .ignoresSafeArea()
+                // Quyo-style purple gradient background
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.4, green: 0.2, blue: 0.8),  // Deep purple
+                        Color(red: 0.6, green: 0.3, blue: 0.9),  // Medium purple
+                        Color(red: 0.8, green: 0.4, blue: 1.0)   // Light purple
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea(.all, edges: .all)
                 
                 ScrollView {
                     VStack(spacing: 25) {
+                        // Custom App Title
+                        AppTitle("Edit Profile")
+                            .padding(.top, 20)
+                        
                         // Profile Picture Section
                         VStack(spacing: 15) {
                             ZStack {
                                 Circle()
-                                    .fill(Color(red: 0.6, green: 0.7, blue: 0.9).opacity(0.2))
+                                    .fill(Color.white.opacity(0.15))
                                     .frame(width: 100, height: 100)
                                 
                                 Image(systemName: "person.fill")
                                     .font(.system(size: 50))
-                                    .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                                    .foregroundColor(.white)
                             }
                             
                             Button("Change Photo") {
                                 // Photo picker would go here
                             }
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                                    .foregroundColor(.white.opacity(0.8))
                         }
                         .padding(.top, 20)
                         
@@ -491,7 +472,7 @@ struct EditProfileView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Display Name")
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                                    .foregroundColor(.white)
                                 
                                 TextField("Enter your name", text: $displayName)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -508,7 +489,7 @@ struct EditProfileView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Bio")
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                                    .foregroundColor(.white)
                                 
                                 TextField("Tell us about yourself", text: $bio, axis: .vertical)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -521,7 +502,7 @@ struct EditProfileView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Meditation Goal")
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                                    .foregroundColor(.white)
                                 
                                 TextField("e.g., Reduce stress, Improve focus", text: $meditationGoal)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -534,19 +515,21 @@ struct EditProfileView: View {
                         
                         Spacer()
                     }
+                    .padding(.bottom, 40)
                 }
             }
-            .navigationTitle("Edit Profile")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarHidden(true) // Hide default navigation bar
             .navigationBarItems(
                 leading: Button("Cancel") {
                     presentationMode.wrappedValue.dismiss()
-                },
+                }
+                .foregroundColor(.white),
                 trailing: Button(isSaving ? "Saving..." : "Save") {
                     isSaving = true
                     saveProfile()
                     presentationMode.wrappedValue.dismiss()
                 }
+                .foregroundColor(.white)
                 .disabled(isSaving)
             )
         }
@@ -597,33 +580,28 @@ struct DataExportView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(red: 0.95, green: 0.95, blue: 1.0)
-                    .ignoresSafeArea()
+                // Quyo-style purple gradient background
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.4, green: 0.2, blue: 0.8),  // Deep purple
+                        Color(red: 0.6, green: 0.3, blue: 0.9),  // Medium purple
+                        Color(red: 0.8, green: 0.4, blue: 1.0)   // Light purple
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea(.all, edges: .all)
                 
                 VStack(spacing: 30) {
-                    // Header
-                    VStack(spacing: 10) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 60))
-                            .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
-                        
-                        Text("Export Your Data")
-                            .font(.system(size: 24, weight: .medium))
-                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
-                        
-                        Text("Download your meditation and mood data for backup or analysis")
-                            .font(.system(size: 16, weight: .light))
-                            .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 40)
-                    }
-                    .padding(.top, 40)
+                    // Custom App Title
+                    AppTitle("Export Data")
+                        .padding(.top, 20)
                     
                     // Data Summary
                     VStack(spacing: 20) {
                         Text("Data Summary")
                             .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                            .foregroundColor(.white)
                         
                         HStack(spacing: 30) {
                             DataSummaryCard(
@@ -643,7 +621,7 @@ struct DataExportView: View {
                     VStack(spacing: 15) {
                         Text("Export Format")
                             .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.4))
+                            .foregroundColor(.white)
                         
                         Picker("Format", selection: $exportFormat) {
                             ForEach(ExportFormat.allCases, id: \.self) { format in
@@ -674,7 +652,11 @@ struct DataExportView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(Color(red: 0.6, green: 0.7, blue: 0.9))
+                        .background(Color.white.opacity(0.15))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 25)
+                                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                        )
                         .cornerRadius(25)
                         .disabled(isExporting)
                     }
@@ -683,11 +665,11 @@ struct DataExportView: View {
                     Spacer()
                 }
             }
-            .navigationTitle("Export Data")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarHidden(true) // Hide default navigation bar
             .navigationBarItems(trailing: Button("Done") {
                 presentationMode.wrappedValue.dismiss()
-            })
+            }
+            .foregroundColor(.white))
         }
     }
     
@@ -711,17 +693,20 @@ struct DataSummaryCard: View {
         VStack(spacing: 8) {
             Text(value)
                 .font(.system(size: 24, weight: .semibold))
-                .foregroundColor(Color(red: 0.6, green: 0.7, blue: 0.9))
+                .foregroundColor(.white)
             
             Text(label)
                 .font(.system(size: 12, weight: .light))
-                .foregroundColor(Color(red: 0.5, green: 0.5, blue: 0.6))
+                .foregroundColor(.white.opacity(0.8))
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
+        .background(Color.white.opacity(0.15))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
+        .cornerRadius(20)
     }
 } 

@@ -192,38 +192,102 @@ class MeditationManager: ObservableObject {
     /// Syncs meditation sessions with Supabase
     @MainActor
     func syncWithCloud(userId: String) async {
-        guard !userId.isEmpty else { return }
+        print("🔄 MeditationManager: Starting cloud sync...")
+        print("👤 User ID: \(userId)")
+        
+        guard !userId.isEmpty else { 
+            print("❌ MeditationManager: Empty user ID, aborting sync")
+            isSyncing = false
+            syncStatus = "Invalid user ID"
+            return 
+        }
         
         // Skip sync for anonymous users
         if userId.hasPrefix("anonymous_") {
+            print("ℹ️ MeditationManager: Anonymous user, skipping sync")
             syncStatus = "Cloud sync is only available when signed in"
+            isSyncing = false
             return
         }
         
+        print("✅ MeditationManager: Starting sync process")
         isSyncing = true
         syncStatus = "Syncing with cloud..."
         
-        // Upload local sessions to cloud
-        await supabase.syncMeditationSessions(userId: userId, sessions: completedSessions)
-        
-        // Get any sessions from the cloud that we don't have locally
-        if let cloudSessions = await supabase.fetchMeditationSessions(userId: userId) {
-            // Find sessions that exist in the cloud but not locally
-            let localIds = Set(completedSessions.map { $0.id.uuidString })
-            let newSessions = cloudSessions.filter { !localIds.contains($0.id.uuidString) }
-            
-            // Add new sessions to local storage
-            if !newSessions.isEmpty {
-                completedSessions.append(contentsOf: newSessions)
-                saveSessions()
-                syncStatus = "Synced \(newSessions.count) new sessions from cloud"
-            } else {
-                syncStatus = "All sessions synced"
+        // Add timeout protection
+        let syncTask = Task {
+            do {
+                // Upload local sessions to cloud
+                print("📤 MeditationManager: Uploading \(completedSessions.count) local sessions to cloud")
+                await supabase.syncMeditationSessions(userId: userId, sessions: completedSessions)
+                
+                // Get any sessions from the cloud that we don't have locally
+                print("📥 MeditationManager: Fetching sessions from cloud")
+                if let cloudSessions = await supabase.fetchMeditationSessions(userId: userId) {
+                    print("☁️ MeditationManager: Received \(cloudSessions.count) sessions from cloud")
+                    
+                    // Find sessions that exist in the cloud but not locally
+                    let localIds = Set(completedSessions.map { $0.id.uuidString })
+                    let newSessions = cloudSessions.filter { !localIds.contains($0.id.uuidString) }
+                    
+                    print("🆕 MeditationManager: Found \(newSessions.count) new sessions to add locally")
+                    
+                    // Add new sessions to local storage
+                    if !newSessions.isEmpty {
+                        completedSessions.append(contentsOf: newSessions)
+                        saveSessions()
+                        syncStatus = "Synced \(newSessions.count) new sessions from cloud"
+                        print("✅ MeditationManager: Successfully synced \(newSessions.count) new sessions")
+                    } else {
+                        syncStatus = "All sessions synced"
+                        print("✅ MeditationManager: All sessions already synced")
+                    }
+                } else {
+                    print("⚠️ MeditationManager: No sessions received from cloud")
+                    syncStatus = "No cloud data available"
+                }
+                
+                print("✅ MeditationManager: Sync completed successfully")
+            } catch {
+                print("❌ MeditationManager: Sync failed with error: \(error)")
+                syncStatus = "Sync failed: \(error.localizedDescription)"
             }
         }
         
+        // Wait for sync with timeout (30 seconds)
+        do {
+            try await withTimeout(seconds: 30) {
+                await syncTask.value
+            }
+        } catch {
+            print("⏰ MeditationManager: Sync timed out after 30 seconds")
+            syncTask.cancel()
+            syncStatus = "Sync timed out - please try again"
+        }
+        
+        print("🏁 MeditationManager: Setting isSyncing = false")
         isSyncing = false
     }
+    
+    /// Helper function to add timeout to async operations
+    private func withTimeout<T>(seconds: TimeInterval, operation: @escaping () async throws -> T) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask {
+                try await operation()
+            }
+            
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                throw TimeoutError()
+            }
+            
+            let result = try await group.next()!
+            group.cancelAll()
+            return result
+        }
+    }
+    
+    private struct TimeoutError: Error {}
     
     /// Auto-syncs the latest session to cloud (called after completing a session)
     @MainActor
@@ -396,6 +460,29 @@ class MeditationManager: ObservableObject {
         }
         
         timeRemaining = Double(selectedDuration * 60)
+    }
+    
+    /// Manual reset function to force stop syncing if stuck
+    @MainActor
+    func resetSyncState() {
+        print("🔄 MeditationManager: Manually resetting sync state")
+        isSyncing = false
+        syncStatus = "Sync reset - try again"
+    }
+    
+    /// Check if sync is stuck and reset if needed
+    @MainActor
+    func checkAndResetStuckSync() {
+        if isSyncing {
+            // If syncing for more than 60 seconds, consider it stuck
+            // This is a safety mechanism
+            DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
+                if self.isSyncing {
+                    print("⚠️ MeditationManager: Sync appears stuck, auto-resetting")
+                    self.resetSyncState()
+                }
+            }
+        }
     }
 }
 

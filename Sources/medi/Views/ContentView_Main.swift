@@ -49,9 +49,9 @@ public struct ContentView_Main: View {
                 }
                 .tag(1)
             
-            HistoryView()
+            MoodInsightsView()
                 .tabItem {
-                    Label("History", systemImage: "clock.fill")
+                    Label("Insights", systemImage: "brain.head.profile")
                 }
                 .tag(2)
             
@@ -61,13 +61,16 @@ public struct ContentView_Main: View {
                 }
                 .tag(3)
             
-            MoodInsightsView()
+            HistoryView()
                 .tabItem {
-                    Label("Insights", systemImage: "brain.head.profile")
+                    Label("History", systemImage: "clock.fill")
                 }
                 .tag(4)
         }
         .accentColor(.purple)
+        .toolbar(.visible, for: .tabBar)
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar) // matches the blur
+        .toolbarColorScheme(.light, for: .tabBar)
         .sheet(isPresented: $showingMoodCheckIn) {
             MoodCheckInView { mood in
                 meditationManager.createMoodSession(mood: mood)

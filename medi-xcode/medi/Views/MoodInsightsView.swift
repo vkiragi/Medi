@@ -32,17 +32,9 @@ struct MoodInsightsView: View {
                 
                 ScrollView {
                     VStack(spacing: 25) {
-                        // Header
-                        VStack(spacing: 10) {
-                            Text("🧠")
-                                .font(.system(size: 50))
-                            
-                            Text("Mood Insights")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                        }
-                        .padding(.top, 20)
+                        // Custom App Title
+                        AppTitle("Insights")
+                            .padding(.top, 60)
                         
                         if !subscriptionManager.isSubscribed {
                             Button(action: { showingPaywall = true }) {
@@ -184,18 +176,18 @@ struct MoodInsightsView: View {
                         
                         Spacer(minLength: 30)
                     }
+                    .padding(.bottom, 40) // ensure last content isn't jammed into the Tab Bar
                 }
             }
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarHidden(true) // Hide default navigation bar
+            .onAppear {
+                generateInsights()
+            }
+            .onChange(of: selectedTimeframe) { _ in
+                generateInsights()
+            }
+            .sheet(isPresented: $showingPaywall) { PaywallView() }
         }
-        .onAppear {
-            generateInsights()
-        }
-        .onChange(of: selectedTimeframe) { _ in
-            generateInsights()
-        }
-        .sheet(isPresented: $showingPaywall) { PaywallView() }
     }
     
     private func generateInsights() {

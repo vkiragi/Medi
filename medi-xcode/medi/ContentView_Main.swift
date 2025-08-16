@@ -10,7 +10,7 @@ struct ContentView_Main: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             ZStack {
-                MeditationView()
+                HomeView()
                 
                 // Top-right mood check-in button
                 VStack {
@@ -43,9 +43,9 @@ struct ContentView_Main: View {
             }
             .tag(0)
             
-            HistoryView()
+            MoodInsightsView()
                 .tabItem {
-                    Label("History", systemImage: "chart.line.uptrend.xyaxis")
+                    Label("Insights", systemImage: "lightbulb.fill")
                 }
                 .tag(1)
             
@@ -55,38 +55,16 @@ struct ContentView_Main: View {
                 }
                 .tag(2)
             
-            MoodInsightsView()
+            HistoryView()
                 .tabItem {
-                    Label("Insights", systemImage: "lightbulb.fill")
+                    Label("History", systemImage: "chart.line.uptrend.xyaxis")
                 }
                 .tag(3)
         }
         .accentColor(Color.white) // White for selected tabs
-        .onAppear {
-            // Force tab bar background color after view appears
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                   let window = windowScene.windows.first {
-                    if let tabBarController = window.rootViewController?.children.first as? UITabBarController {
-                        // Try a more visible color for testing
-                        let purpleColor = UIColor(red: 0.8, green: 0.6, blue: 1.0, alpha: 1.0)
-                        tabBarController.tabBar.backgroundColor = purpleColor
-                        tabBarController.tabBar.barTintColor = purpleColor
-                        
-                        // Also try setting the appearance directly on the tab bar
-                        let appearance = UITabBarAppearance()
-                        appearance.configureWithOpaqueBackground()
-                        appearance.backgroundColor = purpleColor
-                        tabBarController.tabBar.standardAppearance = appearance
-                        tabBarController.tabBar.scrollEdgeAppearance = appearance
-                        
-                        // Force layout update
-                        tabBarController.tabBar.setNeedsLayout()
-                        tabBarController.tabBar.layoutIfNeeded()
-                    }
-                }
-            }
-        }
+        .toolbar(.visible, for: .tabBar)
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar) // matches the blur
+        .toolbarColorScheme(.light, for: .tabBar)
 
         .sheet(isPresented: $showingMoodCheckIn) {
             MoodCheckInView { mood in

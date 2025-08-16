@@ -28,7 +28,7 @@ enum MeditationMode: String, CaseIterable {
     }
 }
 
-struct MeditationView: View {
+struct HomeView: View {
     // MARK: - Properties
     @EnvironmentObject var audioManager: AudioManager
     // MARK: - Guided Meditations Data
@@ -155,10 +155,8 @@ struct MeditationView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Title
-                Text("Medi")
-                    .font(.system(size: 32, weight: .light))
-                    .foregroundColor(.white)
+                // Custom App Title
+                AppTitle("Medi")
                     .padding(.top, 60)
                 
                 // Mode Selection

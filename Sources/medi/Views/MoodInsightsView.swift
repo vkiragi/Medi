@@ -160,9 +160,10 @@ public struct MoodInsightsView: View {
                                 )
                             }
                             
-                            Spacer(minLength: 40)
+                            Spacer(minLength: 30)
                         }
                         .padding(.horizontal, 20)
+                        .padding(.bottom, 40) // ensure last content isn't jammed into the Tab Bar
                     }
                 } else {
                     // Empty state

@@ -209,7 +209,7 @@ class SupabaseManager: ObservableObject {
             
             // Parse the response to get existing session IDs
             let decoder = JSONDecoder()
-            let existingSessions = try decoder.decode([CloudSession].self, from: response.data)
+            let existingSessions = try decoder.decode([SessionIdOnly].self, from: response.data)
             let existingIds = Set(existingSessions.map { $0.session_id })
             
             print("☁️ Existing sessions in cloud: \(existingIds.count)")
@@ -238,10 +238,18 @@ class SupabaseManager: ObservableObject {
                 
                 // Upload new sessions
                 print("🚀 Inserting sessions into cloud...")
-                try await client
+                let insertResponse = try await client
                     .from("meditation_sessions")
                     .insert(cloudSessions)
                     .execute()
+                
+                print("📡 Insert response received")
+                print("📄 Response data: \(String(data: insertResponse.data, encoding: .utf8) ?? "Unable to decode")")
+                
+                // Check if the insert was successful
+                if let responseData = String(data: insertResponse.data, encoding: .utf8) {
+                    print("✅ Insert response: \(responseData)")
+                }
                 
                 print("✅ Successfully synced \(sessionsToSync.count) new meditation sessions")
             } else {
@@ -262,22 +270,60 @@ class SupabaseManager: ObservableObject {
     /// Fetches all meditation sessions from Supabase for the current user
     @MainActor
     func fetchMeditationSessions(userId: String) async -> [MeditationSession]? {
-        guard !userId.isEmpty, !userId.hasPrefix("anonymous_") else { return nil }
+        print("📥 SupabaseManager: Starting fetch for user: \(userId)")
+        guard !userId.isEmpty, !userId.hasPrefix("anonymous_") else { 
+            print("❌ SupabaseManager: Invalid user ID for fetch")
+            return nil 
+        }
         
         do {
             isSyncing = true
             syncError = nil
             
             // Get all sessions for this user
+            print("🔍 SupabaseManager: Querying meditation_sessions table...")
             let response = try await client
                 .from("meditation_sessions")
                 .select()
                 .eq("user_id", value: userId)
                 .execute()
             
+            print("📡 SupabaseManager: Fetch response received")
+            print("📄 SupabaseManager: Response data: \(String(data: response.data, encoding: .utf8) ?? "Unable to decode")")
+            
             // Parse the response
             let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .custom { decoder in
+                let container = try decoder.singleValueContainer()
+                let dateString = try container.decode(String.self)
+                
+                // Try different date formats
+                let iso8601Formatter = ISO8601DateFormatter()
+                
+                let supabaseFormatter = DateFormatter()
+                supabaseFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'+00:00'"
+                
+                let postgresFormatter = DateFormatter()
+                postgresFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'+00:00'"
+                
+                // Try parsing with different formatters
+                if let date = iso8601Formatter.date(from: dateString) {
+                    return date
+                } else if let date = supabaseFormatter.date(from: dateString) {
+                    return date
+                } else if let date = postgresFormatter.date(from: dateString) {
+                    return date
+                } else {
+                    throw DecodingError.dataCorruptedError(
+                        in: container,
+                        debugDescription: "Unable to parse date string: \(dateString)"
+                    )
+                }
+            }
+            
             let cloudSessions = try decoder.decode([CloudSession].self, from: response.data)
+            
+            print("✅ SupabaseManager: Successfully decoded \(cloudSessions.count) sessions from cloud")
             
             // Convert to local format
             let sessions = cloudSessions.map { cloudSession in
@@ -528,6 +574,76 @@ struct CloudSession: Codable {
     let date: Date
     let duration: Int
     let completed: Bool
+    
+    // Custom initializer for manual creation
+    init(session_id: String, user_id: String, date: Date, duration: Int, completed: Bool) {
+        self.session_id = session_id
+        self.user_id = user_id
+        self.date = date
+        self.duration = duration
+        self.completed = completed
+    }
+    
+    // Custom decoding to handle ISO 8601 date strings
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        session_id = try container.decode(String.self, forKey: .session_id)
+        user_id = try container.decode(String.self, forKey: .user_id)
+        duration = try container.decode(Int.self, forKey: .duration)
+        completed = try container.decode(Bool.self, forKey: .completed)
+        
+        // Handle date as string and convert to Date
+        let dateString = try container.decode(String.self, forKey: .date)
+        
+        // Try different date formats
+        let iso8601Formatter = ISO8601DateFormatter()
+        
+        let supabaseFormatter = DateFormatter()
+        supabaseFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'+00:00'"
+        
+        let postgresFormatter = DateFormatter()
+        postgresFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'+00:00'"
+        
+        // Try parsing with different formatters
+        if let date = iso8601Formatter.date(from: dateString) {
+            self.date = date
+        } else if let date = supabaseFormatter.date(from: dateString) {
+            self.date = date
+        } else if let date = postgresFormatter.date(from: dateString) {
+            self.date = date
+        } else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .date,
+                in: container,
+                debugDescription: "Unable to parse date string: \(dateString)"
+            )
+        }
+    }
+    
+    // Custom encoding to output ISO 8601 strings
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(session_id, forKey: .session_id)
+        try container.encode(user_id, forKey: .user_id)
+        try container.encode(duration, forKey: .duration)
+        try container.encode(completed, forKey: .completed)
+        
+        // Encode date as ISO 8601 string
+        let formatter = ISO8601DateFormatter()
+        let dateString = formatter.string(from: date)
+        try container.encode(dateString, forKey: .date)
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case session_id, user_id, date, duration, completed
+    }
+}
+
+/// Lightweight struct for querying only session IDs
+struct SessionIdOnly: Codable {
+    let session_id: String
 }
 
 /// Cloud mood session format for Supabase
