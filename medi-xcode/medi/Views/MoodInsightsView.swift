@@ -32,9 +32,8 @@ struct MoodInsightsView: View {
                 
                 ScrollView {
                     VStack(spacing: 25) {
-                        // Custom App Title
-                        AppTitle("Insights")
-                            .padding(.top, 60)
+                        // Compact App Header
+                        AppHeader(title: "Insights")
                         
                         if !subscriptionManager.isSubscribed {
                             Button(action: { showingPaywall = true }) {

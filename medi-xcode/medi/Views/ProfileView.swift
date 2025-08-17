@@ -27,9 +27,8 @@ struct ProfileView: View {
                 
                 ScrollView {
                     VStack(spacing: 25) {
-                        // Custom App Title
-                        AppTitle("Profile")
-                            .padding(.top, 60)
+                        // Compact App Header
+                        AppHeader(title: "Profile")
                         
                         // Profile Header
                         VStack(spacing: 15) {
@@ -692,9 +691,8 @@ struct EditProfileView: View {
                 
                 ScrollView {
                     VStack(spacing: 25) {
-                        // Custom App Title
-                        AppTitle("Edit Profile")
-                            .padding(.top, 20)
+                        // Compact App Header
+                        AppHeader(title: "Edit Profile")
                         
                         // Profile Picture Section
                         VStack(spacing: 15) {
@@ -842,9 +840,8 @@ struct DataExportView: View {
                 .ignoresSafeArea(.all, edges: .all)
                 
                 VStack(spacing: 30) {
-                    // Custom App Title
-                    AppTitle("Export Data")
-                        .padding(.top, 20)
+                    // Compact App Header
+                    AppHeader(title: "Export Data")
                     
                     // Data Summary
                     VStack(spacing: 20) {

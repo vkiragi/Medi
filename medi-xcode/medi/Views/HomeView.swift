@@ -155,9 +155,8 @@ struct HomeView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Custom App Title
-                AppTitle("Medi")
-                    .padding(.top, 60)
+                // Compact App Header
+                AppHeader(title: "Medi")
                 
                 // Mode Selection
                 VStack(spacing: 20) {

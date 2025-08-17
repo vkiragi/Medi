@@ -1,4 +1,5 @@
 import SwiftUI
+import medi
 
 struct GuidedMeditationListView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager

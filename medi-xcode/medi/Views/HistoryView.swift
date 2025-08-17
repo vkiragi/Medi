@@ -22,10 +22,8 @@ struct HistoryView: View {
                 .ignoresSafeArea(.all, edges: .all) // Ensure gradient covers all edges including bottom
                 
                 VStack(spacing: 0) {
-                    // Custom App Title
-                    AppTitle("History")
-                        .padding(.top, 60)
-                        .padding(.horizontal, 20)
+                    // Compact App Header
+                    AppHeader(title: "History")
                     
                     if meditationManager.completedSessions.isEmpty && !meditationManager.isSyncing {
                         // Empty state (matching HomeView card style)
