@@ -130,6 +130,39 @@ struct HomeView: View {
                 duration: 18,
                 imageColor: Color(red: 0.5, green: 0.8, blue: 0.7),
                 audioFileName: "inner-peace-meditation-106798"
+            ),
+            // Gratitude Practice meditations
+            GuidedMeditation(
+                id: "zen_garden",
+                title: "Zen Garden",
+                description: "Mindful appreciation in zen tradition.",
+                duration: 15,
+                imageColor: Color(red: 0.6, green: 0.7, blue: 0.6),
+                audioFileName: "zen-garden-meditation-147712"
+            ),
+            GuidedMeditation(
+                id: "vedic_meditations",
+                title: "Vedic Meditations",
+                description: "Ancient wisdom for gratitude practice.",
+                duration: 18,
+                imageColor: Color(red: 0.8, green: 0.5, blue: 0.7),
+                audioFileName: "vedic-meditations-169182"
+            ),
+            GuidedMeditation(
+                id: "solitude_meditation",
+                title: "Solitude Meditation",
+                description: "Quiet contemplation and gratitude.",
+                duration: 14,
+                imageColor: Color(red: 0.5, green: 0.6, blue: 0.8),
+                audioFileName: "solitude-meditation-14250"
+            ),
+            GuidedMeditation(
+                id: "quiet_contemplation",
+                title: "Quiet Contemplation",
+                description: "Deep reflection on life's blessings.",
+                duration: 16,
+                imageColor: Color(red: 0.7, green: 0.8, blue: 0.5),
+                audioFileName: "quiet-contemplation-meditation-283536"
             )
         ]
         return meditations
@@ -168,34 +201,14 @@ struct HomeView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
                             ForEach(MeditationMode.allCases, id: \.self) { mode in
-                                Button(action: {
+                                ModeChip(
+                                    title: mode.rawValue,
+                                    icon: mode.icon,
+                                    selected: selectedMode == mode,
+                                    tint: mode.color
+                                ) {
                                     selectedMode = mode
-                                }) {
-                                    VStack(spacing: 8) {
-                                        Image(systemName: mode.icon)
-                                            .font(.system(size: 24, weight: .medium))
-                                            .foregroundColor(selectedMode == mode ? .white : .white.opacity(0.6))
-                                        
-                                        Text(mode.rawValue)
-                                            .font(.system(size: 14, weight: .medium))
-                                            .foregroundColor(selectedMode == mode ? .white : .white.opacity(0.6))
-                                    }
-                                    .frame(width: 100, height: 80)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(selectedMode == mode ? 
-                                                  mode.color.opacity(0.3) : 
-                                                  Color.white.opacity(0.1))
-                                    )
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(selectedMode == mode ? 
-                                                   mode.color.opacity(0.5) : 
-                                                   Color.clear, lineWidth: 1)
-                                    )
                                 }
-                                .scaleEffect(selectedMode == mode ? 1.05 : 1.0)
-                                .animation(.easeInOut(duration: 0.2), value: selectedMode)
                             }
                         }
                         .padding(.horizontal, 20)
@@ -385,6 +398,46 @@ struct HomeView: View {
         let minutes = Int(meditationManager.timeRemaining) / 60
         let seconds = Int(meditationManager.timeRemaining) % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    private let chipRadius: CGFloat = 20
+    private var chipShape: some InsettableShape { RoundedRectangle(cornerRadius: chipRadius, style: .continuous) }
+    
+    struct ModeChip: View {
+        let title: String
+        let icon: String
+        let selected: Bool
+        let tint: Color
+        let action: () -> Void
+        
+        var body: some View {
+            let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
+            
+            Button(action: action) {
+                VStack(spacing: 8) {
+                    Image(systemName: icon)
+                        .font(.system(size: 24, weight: .medium))
+                        .foregroundColor(selected ? .white : .white.opacity(0.6))
+                    Text(title)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(selected ? .white : .white.opacity(0.6))
+                }
+                .frame(width: 100, height: 80)
+                // Give extra breathing room so scale doesn't get clipped by parent
+                .padding(selected ? 2 : 0)
+                .background(
+                    shape.fill(selected ? tint.opacity(0.30) : Color.white.opacity(0.10))
+                )
+                .overlay(
+                    shape.strokeBorder(selected ? tint.opacity(0.50) : .clear, lineWidth: 1)
+                )
+                .clipShape(shape)              // content + bg share EXACT shape
+                .contentShape(shape)           // precise hit area
+                .scaleEffect(selected ? 1.03 : 1.0)       // keep ≤ 1.03
+                .animation(.easeInOut(duration: 0.20), value: selected)
+            }
+            .buttonStyle(.plain)
+        }
     }
 }
 
